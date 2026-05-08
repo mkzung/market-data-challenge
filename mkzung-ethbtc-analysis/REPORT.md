@@ -259,7 +259,7 @@ patterns expose operator behaviour. Three sub-detectors:
 | 2025-09-01 20:38:39 | 5 | sell | 5 (varied) | aligns with D4 sub-bid cluster |
 | 2025-09-01 17:32:42 | 5 | sell | 5 (varied) | |
 
-**Sells dominate bursts (8 of 9).** Combined with D2's identical-size
+**Sells dominate bursts (7 of 9).** Combined with D2's identical-size
 twin-burst on the buy side, the picture is: SELLER fires varied-size
 multi-position dumps several times per day; BUYER fires identical-clip
 ping volume continuously plus rare same-clip bursts.
