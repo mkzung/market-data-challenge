@@ -33,6 +33,7 @@ from src.detector_liquidity  import detect_liquidity_quality
 from src.detector_bursts     import (
     detect_bursts, detect_time_of_day, detect_anchor_prices, summarize_d5,
 )
+from src.detector_microstructure import summarize_d6
 from src.plotting import (
     plot_imbalance, plot_signatures, plot_pumpdump, plot_liquidity,
     plot_cooccurrence_v2, plot_bursts_and_tod,
@@ -178,6 +179,24 @@ def main() -> None:
           f"({d5_sum['top_anchor_share_pct']:.1f}%)")
     plot_bursts_and_tod(bursts, tod, anchors, trades, args.out / "d5_bursts_tod_anchors.png")
 
+    # --- Detector 6 (peer-corroborated cross-checks) ---------------------
+    print("\n[D6] microstructure cross-checks (frozen OB · Benford · interval CV) …")
+    ob_raw_for_d6 = pd.read_csv(args.orderbooks)
+    d6_sum = summarize_d6(ob_raw_for_d6, trades)
+    fo = d6_sum["frozen_orderbook"]
+    bf = d6_sum["benford"]
+    iv = d6_sum["interval_buy_sep3_14plus"]
+    print(f"     frozen bid {fo['frozen_bid']}/{fo['n_pairs']} ({fo['frozen_bid_pct']:.1f}%) "
+          f"vs ask {fo['frozen_ask']}/{fo['n_pairs']} ({fo['frozen_ask_pct']:.1f}%)  "
+          f"asymmetry {fo['asymmetry_ratio']}x  "
+          f"longest_bid_run={fo['longest_bid_run']} "
+          f"({fo['longest_bid_run_start']} → {fo['longest_bid_run_end']})")
+    print(f"     Benford K-S {bf['ks_stat']} vs crit {bf['ks_critical_05']} "
+          f"(n={bf['n']}) → {'REJECT' if bf['reject_null'] else 'do not reject'}")
+    print(f"     buy intervals (Sep-3 14:00+ UTC): n={iv['n_trades']}  "
+          f"median={iv['median_seconds']}s  IQR={iv['iqr_low_seconds']}–{iv['iqr_high_seconds']}s  "
+          f"CV={iv['cv']}")
+
     # --- Co-occurrence ----------------------------------------------------
     print("\n[XR] cross-detector co-occurrence timeline …")
     plot_cooccurrence_v2(d1, d2, d3, d4, trades, args.out / "co_occurrence_timeline.png")
@@ -192,6 +211,7 @@ def main() -> None:
         "d5": d5_sum,
         "d5_bursts": bursts.to_dict(orient="records") if not bursts.empty else [],
         "d5_anchors": anchors.to_dict(orient="records") if not anchors.empty else [],
+        "d6": d6_sum,
     }
     with open(args.findings, "w") as f:
         json.dump(findings, f, indent=2, default=_to_jsonable)

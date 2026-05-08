@@ -139,3 +139,4 @@ AUDIT 10 — D4 outside-spread tolerance audit
   tol=15min  matched=585/845 (69.2%)  outside=107
   tol=30min  matched=742/845 (87.8%)  outside=127
   tol=1h     matched=782/845 (92.5%)  outside=128
+

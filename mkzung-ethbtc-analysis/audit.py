@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import sys
 from io import StringIO
 from pathlib import Path
 
@@ -175,7 +176,7 @@ def main():
     text = buf.getvalue()
     args.out.write_text(text)
     print(text)
-    print(f"\n[audit] written to {args.out}")
+    print(f"\n[audit] written to {args.out}", file=sys.stderr)
 
 
 if __name__ == "__main__":

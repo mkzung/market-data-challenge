@@ -135,7 +135,7 @@
 <main>
 
 <p class="lead">
-Five-detector forensic framework finds <strong>five mutually-consistent signals of automated, likely non-organic activity</strong>: extreme one-sided buy flow that does not move price, identical-clip burst signatures on both sides of the book, sub-second multi-trade clusters, an operator schedule asymmetric to US trading hours, and structural liquidity pathology (median spread 89.7 bps, 15% of trades printed outside the contemporaneous bid-ask).
+Five-detector forensic framework finds <strong>five mutually-consistent signals of automated, likely non-organic activity</strong>: extreme one-sided buy flow that does not move price, identical-clip burst signatures on both sides of the book, sub-second multi-trade clusters, an operator schedule asymmetric to US trading hours, and structural liquidity pathology (median spread 89.7 bps, 15% of trades printed outside the contemporaneous bid-ask). A sixth detector adds <strong>three peer-corroborated microstructure cross-checks</strong> (frozen-orderbook asymmetry 9.15×, Benford rejection at K-S=0.063, cron-style buy intervals with CV=0.69) that independently reject the null of organic two-sided market activity.
 </p>
 
 <div class="toc">
@@ -148,6 +148,7 @@ Five-detector forensic framework finds <strong>five mutually-consistent signals 
     <li><a href="#d3">D3 — Pump-and-Dump</a></li>
     <li><a href="#d4">D4 — Liquidity Quality</a></li>
     <li><a href="#d5">D5 — Burst / TOD / Anchors</a></li>
+    <li><a href="#d6">D6 — Microstructure cross-checks</a></li>
     <li><a href="#xr">Cross-detector triangulation</a></li>
     <li><a href="#repro">Reproducibility</a></li>
   </ol>
@@ -343,6 +344,20 @@ Five-detector forensic framework finds <strong>five mutually-consistent signals 
   <div class="figure"><img src="figures/d5_bursts_tod_anchors.png" alt="D5 bursts/TOD/anchors"><div class="caption">D5 — burst seconds (top), hourly buy/sell counts with US-session highlight (middle), top 15 anchor prices (bottom)</div></div>
 </section>
 
+<section id="d6" class="detector">
+  <h2><span class="num">D6</span> Microstructure cross-checks (peer-corroborated)</h2>
+  <div class="hypothesis">Three additional forensic angles surfaced from peer review of prior submissions. All three reproduce on this dataset and corroborate the D1–D5 wash-trading interpretation.</div>
+
+  <h4 style="margin: 14px 0 8px 0;">6a. Frozen orderbook (one-sided staleness)</h4>
+  <p>Byte-comparing each serialized snapshot against the previous, by side. <strong>119 of 187 pairs (63.6%)</strong> have an identical bid; only <strong>13 of 187 (7.0%)</strong> have an identical ask — a <strong>9.15× asymmetry</strong>. Longest frozen-bid run: <strong>18 consecutive snapshots</strong> (2025-09-02 20:05 UTC → 2025-09-03 02:11 UTC ≈ 6h 6m). An ask repriced ~9× more often than its paired bid is not consistent with two-sided market making — corroborates D4's persistent +0.72 median bid-side depth imbalance.</p>
+
+  <h4 style="margin: 14px 0 8px 0;">6b. Benford's Law conformity</h4>
+  <p>K-S test on the first-digit distribution of trade sizes (n=845): <strong>K-S = 0.0626</strong> &gt; critical 0.0468 at α=0.05 → <strong>reject Benford-conformity</strong>. Digits 1+2 combined = 52.3% (vs 47.7% expected) driven by an excess of leading 2's; digits 7+8+9 are under-represented by ~6 pp. Fingerprint of size generation that prefers a narrow magnitude band rather than spanning organic decades.</p>
+
+  <h4 style="margin: 14px 0 8px 0;">6c. Inter-trade interval regularity (Sep-3 14:00+ UTC, buy side)</h4>
+  <p>n = 95 buys; median gap = <strong>318 s</strong> (≈ 5 min 18 s); IQR = <strong>295.25 – 341.0 s</strong> (50% of gaps within ±23 s of median); coefficient of variation = <strong>0.69</strong>. Tight IQR ≈ ±8% of median is consistent with a cron-style scheduler with light jitter, not human-decision-driven order flow.</p>
+</section>
+
 <section id="xr" class="detector">
   <h2><span class="num">XR</span> Cross-detector triangulation</h2>
   <p>Strict per-bin co-occurrence is sparse: only one hourly bin has both D1 and D2 firing — <strong>2025-09-02 14:00 UTC</strong>, which is 70 minutes before the SELL burst of seven 0.00026058 ETH prints at 15:40:44. Suggestive of "bot pauses, then runs the other side" but not load-bearing on a single bin.</p>
@@ -358,7 +373,7 @@ make all          # install + pytest + analyze + audit + open this dashboard
 
 # Or step-by-step
 pip install -r requirements.txt
-python -m pytest tests/ -v        # 34 unit tests
+python -m pytest tests/ -v        # 46 unit tests
 python analyze.py --trades ../eth-btc-trades.csv \
                   --orderbooks ../eth-btc-orderbooks.csv
 python audit.py

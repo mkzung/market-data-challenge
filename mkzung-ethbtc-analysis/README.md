@@ -3,17 +3,17 @@
 > 👋 **Hi — I'm Max Gorbuk**, applying for the Inca Digital R&D Data Engineering Intern role (Summer 2026). This folder is my submission to **DN Institute [Market Data Challenge — Issue #492](https://github.com/1712n/dn-institute/issues/492)**. Open pull request: **[1712n/market-data-challenge#24](https://github.com/1712n/market-data-challenge/pull/24)**.
 >
 > **Where to look first (≈ 5 min):**
-> 1. The TL;DR table below — five mutually-consistent signals.
+> 1. The TL;DR table below — five primary signals + three peer-corroborated cross-checks.
 > 2. **[REPORT.md](./REPORT.md)** — full methodology, evidence, limitations (~8 min read).
 > 3. **[dashboard.html](./dashboard.html)** — interactive single-file dashboard (open in browser).
-> 4. **`make all`** from a fresh clone — pytest 34/34 + analyze + audit + dashboard.
+> 4. **`make all`** from a fresh clone — pytest 46/46 + analyze + audit + dashboard.
 >
 > **Reach me:** [gorbuk.maxim@gmail.com](mailto:gorbuk.maxim@gmail.com) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
 >
 > Five-detector forensic framework over the ETH/BTC dataset (845 trades, 188 orderbook snapshots, 2025-09-01 → 2025-09-03 UTC).
 
 ![Python](https://img.shields.io/badge/python-3.10+-3776ab?logo=python&logoColor=white)
-![pytest](https://img.shields.io/badge/pytest-34%2F34_pass-3fb950)
+![pytest](https://img.shields.io/badge/pytest-46%2F46_pass-3fb950)
 ![calibration](https://img.shields.io/badge/calibration-clean--baseline_passes-3fb950)
 ![reproducible](https://img.shields.io/badge/reproducibility-byte--identical-3fb950)
 ![CI](https://img.shields.io/badge/CI-github_actions-2088ff?logo=githubactions&logoColor=white)
@@ -29,6 +29,13 @@
 | 3 | Sub-second multi-trade clusters | **9 burst-seconds**; max 12 sells in one second on 09-01 16:16:46 |
 | 4 | Operator-schedule asymmetry | sells in only **15 of 24 UTC hours** (US-session-bound); buys 24/7 |
 | 5 | Liquidity pathology | median spread 89.7 bps; **127 of 845 trades (15%) outside contemporaneous bid-ask** |
+| 6a | Frozen-orderbook asymmetry | bid frozen **63.6%** vs ask **7.0%** of consecutive snapshots (**9.15× asymmetry**); longest run 18 snapshots ≈ 6h |
+| 6b | Benford rejection on trade sizes | K-S **0.0626** > critical 0.0468 (n=845, α=0.05) → reject Benford-conformity |
+| 6c | Cron-style buy interval (Sep-3 14:00+) | n=95 buys, median **318 s**, IQR 295.25–341 s (CV = 0.69) |
+
+Signals 1–5 are the primary forensic case. Signals 6a–6c are independent
+cross-checks added after peer review of prior submissions; all three reproduce
+on this dataset and corroborate the wash-trading interpretation.
 
 **Forensic interpretation:** two automated operators on the venue — a 24/7 buyer running wash flow against pre-arranged liquidity, and a US-trading-hours seller running real algorithmic execution. Full methodology, evidence, and limitations: **[REPORT.md](./REPORT.md)** (≈8 min read) or **[dashboard.html](./dashboard.html)** (visual, open in browser).
 
@@ -44,7 +51,7 @@ Or step-by-step:
 
 ```bash
 pip install -r requirements.txt
-python -m pytest tests/ -v       # 34 unit tests
+python -m pytest tests/ -v       # 46 unit tests
 python analyze.py --trades ../eth-btc-trades.csv \
                   --orderbooks ../eth-btc-orderbooks.csv
 python audit.py                  # raw-evidence dump for every claim
@@ -67,8 +74,8 @@ mkzung-ethbtc-analysis/
 ├── calibration.py             ← synthetic clean-baseline calibration study
 ├── Makefile                   ← make all / pytest / analyze / audit / calibrate / test
 ├── requirements.txt
-├── src/                       ← 5 detector modules + loader + plotting
-├── tests/                     ← 34-test pytest suite
+├── src/                       ← 5 primary + 1 cross-check detector module + loader + plotting
+├── tests/                     ← 46-test pytest suite
 ├── notebooks/                 ← EDA notes + interactive Jupyter alternative
 ├── .github/workflows/         ← CI: pytest + analyze + audit + calibration on every push
 ├── data/                      ← challenge CSVs + spec
@@ -95,7 +102,7 @@ Patterns tested and **rejected** as non-findings (the framework doesn't cherry-p
 | Validation | Command | What it checks |
 |---|---|---|
 | Byte-identical reproducibility | `make test` | re-running `analyze.py` produces identical `findings.json` (seeded RNGs) |
-| Unit tests | `make pytest` | 34-test pytest suite: loaders, all 5 detectors, edge cases, end-to-end repro |
+| Unit tests | `make pytest` | 46-test pytest suite: loaders, all 6 detectors, edge cases, end-to-end repro |
 | Calibration study | `make calibrate` | detectors on synthetic clean ETH/BTC data → zero false positives |
 | Continuous integration | `.github/workflows/test.yml` | full pipeline on Python 3.10 / 3.11 / 3.12 on every push |
 
