@@ -1,0 +1,8 @@
+# Runtime dependencies for analyze.py + audit.py + calibration.py
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+scipy>=1.11
+
+# Test dependencies (used by `make pytest` and CI)
+pytest>=7.0

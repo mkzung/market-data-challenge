@@ -1,0 +1,266 @@
+{
+  "dataset": {
+    "n_trades": 845,
+    "n_orderbooks": 188,
+    "trades_start": "2025-09-01T00:02:57+00:00",
+    "trades_end": "2025-09-03T23:51:34+00:00",
+    "ob_start": "2025-09-01T00:13:09.511132300+00:00",
+    "ob_end": "2025-09-03T20:50:36.802878100+00:00",
+    "span_hours": 71.81,
+    "buy_pct": 85.21,
+    "median_size": 158.166,
+    "median_price": 0.03979319,
+    "n_unique_sizes": 757,
+    "median_spread_bps": 89.71,
+    "p95_spread_bps": 141.17,
+    "max_spread_bps": 145.58
+  },
+  "d1": {
+    "n_buckets": 143,
+    "n_flagged_count": 3,
+    "n_flagged_size": 0,
+    "n_flagged_any": 3,
+    "n_event_clusters": 3,
+    "max_z_count": 3.6375060104665318,
+    "max_z_size": 2.7900540699973235,
+    "global_buy_count_share": 0.8518957345971564,
+    "global_buy_size_share": 0.9999942909880631
+  },
+  "d2": {
+    "buy": {
+      "n_trades": 720,
+      "null_threshold": 2.0,
+      "n_flagged_sizes": 18,
+      "max_count": 6,
+      "top_size": 0.00026058,
+      "top_count": 6,
+      "top_share_pct": 0.8333333333333334
+    },
+    "sell": {
+      "n_trades": 125,
+      "null_threshold": 2.0,
+      "n_flagged_sizes": 1,
+      "max_count": 7,
+      "top_size": 0.00026058,
+      "top_count": 7,
+      "top_share_pct": 5.6000000000000005
+    }
+  },
+  "d3": {
+    "n_candidates": 0
+  },
+  "d4": {
+    "n_snapshots": 188,
+    "median_spread_bps": 89.7129148626612,
+    "p25_spread_bps": 54.50224567695519,
+    "p75_spread_bps": 131.67183771126994,
+    "p95_spread_bps": 141.16914833945498,
+    "max_spread_bps": 145.5797648183457,
+    "min_spread_bps": 1.8310343963389315,
+    "threshold_bps": 205.4673029141333,
+    "n_flagged_wide": 0,
+    "pct_flagged_wide": 0.0,
+    "median_depth_imbalance": 0.7207181179247142,
+    "p95_depth_imbalance": 0.876468750579027,
+    "n_trades_outside_spread": 127,
+    "pct_trades_outside_spread": 15.02958579881657
+  },
+  "d5": {
+    "bursts": {
+      "n_bursts": 9,
+      "n_buy_dominant": 2,
+      "n_sell_dominant": 7,
+      "max_n_in_one_second": 12,
+      "max_burst_second": "2025-09-01T16:16:46+00:00",
+      "max_burst_side": "sell"
+    },
+    "tod": {
+      "hours_with_any_sells": 15,
+      "hours_with_zero_sells": 9,
+      "min_buy_share_pct": 50.0,
+      "min_buy_share_hour": 20,
+      "max_buy_share_pct": 100.0
+    },
+    "top_anchor_price": 0.03987,
+    "top_anchor_count": 21,
+    "top_anchor_share_pct": 2.485207100591716
+  },
+  "d5_bursts": [
+    {
+      "second": "2025-09-01T16:16:46+00:00",
+      "n_trades": 12,
+      "n_buy": 0,
+      "n_sell": 12,
+      "n_unique_sizes": 12,
+      "total_size": 0.03535112,
+      "min_price": 0.04007936,
+      "max_price": 0.04020001,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-02T15:25:45+00:00",
+      "n_trades": 7,
+      "n_buy": 0,
+      "n_sell": 7,
+      "n_unique_sizes": 7,
+      "total_size": 0.00781796,
+      "min_price": 0.03939782,
+      "max_price": 0.0394,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-02T15:40:44+00:00",
+      "n_trades": 7,
+      "n_buy": 0,
+      "n_sell": 7,
+      "n_unique_sizes": 2,
+      "total_size": 0.00194786,
+      "min_price": 0.03925777,
+      "max_price": 0.03925777,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-03T13:43:45+00:00",
+      "n_trades": 7,
+      "n_buy": 7,
+      "n_sell": 0,
+      "n_unique_sizes": 2,
+      "total_size": 0.0019478600000000003,
+      "min_price": 0.03949654,
+      "max_price": 0.03949654,
+      "dominant_side": "buy"
+    },
+    {
+      "second": "2025-09-03T14:10:23+00:00",
+      "n_trades": 7,
+      "n_buy": 7,
+      "n_sell": 0,
+      "n_unique_sizes": 7,
+      "total_size": 0.00482852,
+      "min_price": 0.0396918,
+      "max_price": 0.0397,
+      "dominant_side": "buy"
+    },
+    {
+      "second": "2025-09-02T20:02:23+00:00",
+      "n_trades": 6,
+      "n_buy": 0,
+      "n_sell": 6,
+      "n_unique_sizes": 6,
+      "total_size": 0.01444284,
+      "min_price": 0.03900577,
+      "max_price": 0.03900577,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-03T07:28:17+00:00",
+      "n_trades": 6,
+      "n_buy": 0,
+      "n_sell": 6,
+      "n_unique_sizes": 6,
+      "total_size": 0.01009349,
+      "min_price": 0.0388,
+      "max_price": 0.0389,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-01T17:32:42+00:00",
+      "n_trades": 5,
+      "n_buy": 0,
+      "n_sell": 5,
+      "n_unique_sizes": 5,
+      "total_size": 0.00834247,
+      "min_price": 0.04000477,
+      "max_price": 0.04000477,
+      "dominant_side": "sell"
+    },
+    {
+      "second": "2025-09-01T20:38:39+00:00",
+      "n_trades": 5,
+      "n_buy": 0,
+      "n_sell": 5,
+      "n_unique_sizes": 5,
+      "total_size": 0.0024975400000000004,
+      "min_price": 0.0399187,
+      "max_price": 0.0399187,
+      "dominant_side": "sell"
+    }
+  ],
+  "d5_anchors": [
+    {
+      "price": 0.03987,
+      "count": 21,
+      "share_pct": 2.485207100591716
+    },
+    {
+      "price": 0.03986,
+      "count": 13,
+      "share_pct": 1.5384615384615385
+    },
+    {
+      "price": 0.04020001,
+      "count": 10,
+      "share_pct": 1.183431952662722
+    },
+    {
+      "price": 0.0399187,
+      "count": 10,
+      "share_pct": 1.183431952662722
+    },
+    {
+      "price": 0.03978,
+      "count": 10,
+      "share_pct": 1.183431952662722
+    },
+    {
+      "price": 0.03949654,
+      "count": 10,
+      "share_pct": 1.183431952662722
+    },
+    {
+      "price": 0.03894,
+      "count": 9,
+      "share_pct": 1.0650887573964496
+    },
+    {
+      "price": 0.03925777,
+      "count": 9,
+      "share_pct": 1.0650887573964496
+    },
+    {
+      "price": 0.03988,
+      "count": 8,
+      "share_pct": 0.9467455621301776
+    },
+    {
+      "price": 0.04000477,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    },
+    {
+      "price": 0.03979473,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    },
+    {
+      "price": 0.04100193,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    },
+    {
+      "price": 0.03892,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    },
+    {
+      "price": 0.03984,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    },
+    {
+      "price": 0.03981,
+      "count": 7,
+      "share_pct": 0.8284023668639053
+    }
+  ]
+}

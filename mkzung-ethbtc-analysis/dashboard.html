@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ETH/BTC Suspicious Pattern Analysis · Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --panel-2: #1c232c;
+    --border: #2d333b;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-2: #f0883e;
+    --good: #3fb950;
+    --bad: #f85149;
+    --warn: #d29922;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans);
+    margin: 0; padding: 0; line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre, .mono { font-family: var(--mono); font-size: 0.92em; }
+  pre {
+    background: var(--panel-2); border: 1px solid var(--border);
+    padding: 12px 16px; border-radius: 8px; overflow-x: auto;
+    color: #c9d1d9;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 36px 48px; background: linear-gradient(180deg, #161b22 0%, #0e1116 100%);
+  }
+  header h1 { margin: 0 0 8px 0; font-size: 26px; font-weight: 600; }
+  header .meta { color: var(--muted); font-size: 14px; }
+  header .meta a { color: var(--accent); }
+  main { padding: 32px 48px; max-width: 1280px; margin: 0 auto; }
+  .lead { font-size: 16px; color: var(--text); margin: 0 0 28px 0; }
+  .lead strong { color: var(--accent-2); }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-2 { grid-template-columns: 1fr; }
+    main, header { padding: 20px 16px; }
+  }
+
+  .stat {
+    background: var(--panel); border: 1px solid var(--border);
+    padding: 18px 20px; border-radius: 10px;
+  }
+  .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .stat .value { font-size: 28px; font-weight: 700; color: var(--text); margin-top: 4px; font-family: var(--mono); }
+  .stat .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .stat.alert .value { color: var(--bad); }
+  .stat.warn .value { color: var(--warn); }
+  .stat.good .value { color: var(--good); }
+  .stat.accent .value { color: var(--accent-2); }
+
+  section.detector {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px; margin: 18px 0;
+  }
+  section.detector h2 {
+    margin: 0 0 6px 0; font-size: 18px; font-weight: 600;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  section.detector h2 .num {
+    font-family: var(--mono); color: var(--accent); font-size: 14px;
+    background: rgba(88, 166, 255, 0.1); padding: 2px 8px; border-radius: 4px;
+  }
+  section.detector .hypothesis { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  section.detector .findings { margin: 12px 0; }
+  section.detector .findings li { margin: 4px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td {
+    border-bottom: 1px solid var(--border); text-align: left;
+    padding: 8px 12px;
+  }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  td.num { font-family: var(--mono); text-align: right; }
+  td.code { font-family: var(--mono); }
+  tr:hover td { background: var(--panel-2); }
+
+  .figure {
+    background: white; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; margin: 12px 0;
+    text-align: center;
+  }
+  .figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  .figure .caption { color: var(--muted); font-size: 13px; padding: 6px 4px; background: var(--panel); margin-top: 4px; border-radius: 4px; }
+
+  .toc {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px; margin: 0 0 28px 0;
+  }
+  .toc strong { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .toc ol { margin: 8px 0 0 0; padding: 0 0 0 18px; }
+  .toc li { padding: 2px 0; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-family: var(--mono); }
+  .pill.good { background: rgba(63,185,80,0.15); color: var(--good); }
+  .pill.bad  { background: rgba(248,81,73,0.15); color: var(--bad); }
+  .pill.warn { background: rgba(210,153,34,0.15); color: var(--warn); }
+  .pill.muted { background: rgba(139,148,158,0.15); color: var(--muted); }
+
+  footer {
+    color: var(--muted); font-size: 13px; padding: 24px 48px;
+    border-top: 1px solid var(--border); margin-top: 32px;
+  }
+  .keyfindings { background: linear-gradient(135deg, #1c232c 0%, #161b22 100%); border-left: 3px solid var(--accent-2); }
+  .keyfindings h3 { margin-top: 0; color: var(--accent-2); }
+  .interp { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; margin: 14px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ETH/BTC Suspicious Pattern Analysis</h1>
+  <div class="meta">
+    Submission · DN Institute Market Data Challenge ·
+    <a href="https://github.com/mkzung">github.com/mkzung</a> · Maksim Gorbuk
+    <span style="margin-left:16px;">Dataset: 845 trades · 188 OB snapshots · 2025-09-01 → 2025-09-03 UTC (71.81 h)</span>
+  </div>
+</header>
+
+<main>
+
+<p class="lead">
+Five-detector forensic framework finds <strong>five mutually-consistent signals of automated, likely non-organic activity</strong>: extreme one-sided buy flow that does not move price, identical-clip burst signatures on both sides of the book, sub-second multi-trade clusters, an operator schedule asymmetric to US trading hours, and structural liquidity pathology (median spread 89.7 bps, 15% of trades printed outside the contemporaneous bid-ask).
+</p>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#summary">Headline numbers</a></li>
+    <li><a href="#interp">Forensic interpretation</a></li>
+    <li><a href="#d1">D1 — Buy/Sell Imbalance</a></li>
+    <li><a href="#d2">D2 — Recurring Trade-Size Signatures</a></li>
+    <li><a href="#d3">D3 — Pump-and-Dump</a></li>
+    <li><a href="#d4">D4 — Liquidity Quality</a></li>
+    <li><a href="#d5">D5 — Burst / TOD / Anchors</a></li>
+    <li><a href="#xr">Cross-detector triangulation</a></li>
+    <li><a href="#repro">Reproducibility</a></li>
+  </ol>
+</div>
+
+<section id="summary">
+  <h2 style="font-size:16px; color: var(--muted); text-transform:uppercase; letter-spacing:0.4px; font-weight:500; margin: 8px 0 12px 0;">Headline numbers</h2>
+  <div class="grid cols-3">
+    <div class="stat alert">
+      <div class="label">Buy / Sell size ratio</div>
+      <div class="value">175,245 :1</div>
+      <div class="sub">99.9994% of size on buy side · count 5.76:1 · 720 buys vs 125 sells</div>
+    </div>
+    <div class="stat alert">
+      <div class="label">Buy price impact</div>
+      <div class="value">0.0 bps</div>
+      <div class="sub">aggressive buys do not move mid · sells move it −17.8 bps median</div>
+    </div>
+    <div class="stat alert">
+      <div class="label">Self-trade clip</div>
+      <div class="value">0.00026058 ETH</div>
+      <div class="sub">6× buys + 7× sells · 22h apart · in two ≤2-second bursts · P-null ≈ 0</div>
+    </div>
+    <div class="stat warn">
+      <div class="label">Burst events ≥5/sec</div>
+      <div class="value">9</div>
+      <div class="sub">max 12 trades in one second on 09-01 16:16:46 (sells)</div>
+    </div>
+    <div class="stat warn">
+      <div class="label">Hours with 0 sells</div>
+      <div class="value">9 / 24</div>
+      <div class="sub">UTC 2-3, 5-6, 9-10, 19, 22-23 · seller US-session-bound</div>
+    </div>
+    <div class="stat warn">
+      <div class="label">Median spread</div>
+      <div class="value">89.7 bps</div>
+      <div class="sub">6-18× wider than top-tier ETH/BTC venues (5-15 bps)</div>
+    </div>
+    <div class="stat alert">
+      <div class="label">Outside-spread trades</div>
+      <div class="value">127 / 845</div>
+      <div class="sub">15.0% printed outside contemporaneous bid-ask · 65 sells + 62 buys · sells over-rep 3.5×</div>
+    </div>
+    <div class="stat warn">
+      <div class="label">Depth imbalance</div>
+      <div class="value">+0.72</div>
+      <div class="sub">top-5 ask-heavy median · paradoxical with 99.9994% buy pressure</div>
+    </div>
+    <div class="stat good">
+      <div class="label">Doubling ladder p-value</div>
+      <div class="value">0.0000</div>
+      <div class="sub">4 explicit 2× pairs in 18 flagged sizes · MC 2000 reps · null max=2</div>
+    </div>
+  </div>
+</section>
+
+<section id="interp" class="detector keyfindings">
+  <h3>Forensic interpretation</h3>
+  <p>
+    The dataset is consistent with <strong>two distinct automated operators</strong> on this venue:
+  </p>
+  <ul>
+    <li><strong>Operator A (buyer)</strong> — 24/7 schedule, ETH-large clip sizes (median 188), <strong>price impact zero</strong>, occasional same-clip burst (0.00026058 × 6 in 1s on 09-03). Generates 99.9994% of size and 85.2% of count. Most parsimoniously: <em>wash flow matched against pre-arranged liquidity</em>.</li>
+    <li><strong>Operator B (seller)</strong> — US-trading-hours window only, small clip sizes (median 0.0014), generates 14.8% of trade count and 0.0006% of size, <strong>moves price −17.8 bps median</strong>, multi-position sub-second bursts (12-trade burst on 09-01 16:16:46), occasionally prints below visible bid (D4 cluster on 09-01 20:38–20:42). Looks like real human-supervised bot execution.</li>
+  </ul>
+  <p style="margin-bottom: 0;">
+    Three caveats apply: small sample, single venue, ambiguous unit semantics (the BUY/SELL size disparity may reflect inconsistent unit reporting). All listed in the <a href="REPORT.md#limitations">REPORT § Limitations</a>.
+  </p>
+</section>
+
+<section id="d1" class="detector">
+  <h2><span class="num">D1</span> Buy/Sell Imbalance</h2>
+  <div class="hypothesis">Sustained, time-localized deviation from balanced flow indicates one-sided pressure consistent with wash, momentum ignition, or single-actor dominance.</div>
+
+  <p><strong>Method.</strong> 30-min buckets, rolling 8h z-score on <code>log((buy+1)/(sell+1))</code> (count and size). Eps=1 chosen after audit revealed eps=1e-9 inflated z-score in 119/143 buckets containing zero sells (pure log(buy/eps) artifact).</p>
+
+  <h4 style="margin: 14px 0 8px 0;">Flagged buckets (all NEGATIVE z-scores — lulls in buy pressure)</h4>
+  <table>
+    <thead><tr><th>Timestamp UTC</th><th>Buy / Sell count</th><th>z (count)</th><th>z (size)</th></tr></thead>
+    <tbody>
+      <tr><td class="code">2025-09-01 13:30</td><td class="num">5 / 5</td><td class="num">−3.10</td><td class="num">−2.18</td></tr>
+      <tr><td class="code">2025-09-02 14:30</td><td class="num">3 / 2</td><td class="num">−3.44</td><td class="num">−2.79</td></tr>
+      <tr><td class="code">2025-09-03 07:00</td><td class="num">6 / 10</td><td class="num">−3.64</td><td class="num">−2.79</td></tr>
+    </tbody>
+  </table>
+
+  <p>The fact that even <em>count parity</em> (5:5) is a >3σ event tells you how extreme the persistent baseline is. The baseline itself is the anomaly; flagged buckets mark moments the bot pauses or other flow appears.</p>
+
+  <h4 style="margin: 14px 0 8px 0;">Price-impact decomposition (Δmid before/after)</h4>
+  <table>
+    <thead><tr><th>Side</th><th>n</th><th>median Δmid (bps)</th><th>median price vs mid (bps)</th></tr></thead>
+    <tbody>
+      <tr><td>buy</td><td class="num">688</td><td class="num"><span class="pill bad">0.0</span></td><td class="num">+21.2 (above ask)</td></tr>
+      <tr><td>sell</td><td class="num">121</td><td class="num"><span class="pill warn">−17.8</span></td><td class="num">−29.1 (below bid)</td></tr>
+    </tbody>
+  </table>
+  <div class="interp">Aggressive buys that <strong>do not move price</strong> are inconsistent with genuine taker demand against a thin book — the canonical wash signature.</div>
+
+  <div class="figure"><img src="figures/d1_imbalance.png" alt="D1 imbalance"><div class="caption">D1 — log buy/sell ratio (count = blue, size = red); rolling z-score with ±3σ markers</div></div>
+</section>
+
+<section id="d2" class="detector">
+  <h2><span class="num">D2</span> Recurring Trade-Size Signatures</h2>
+  <div class="hypothesis">Bot/wash activity produces identical-size trades repeated many times. Under a continuous-distribution null with tick rounding, exact repeats are statistically rare for K&gt;2.</div>
+
+  <p><strong>Method (corrected from brief).</strong> The brief proposed shuffling the size array, which produces a degenerate null (shuffling preserves frequencies). Replaced with KDE-on-log(size): <code>scipy.stats.gaussian_kde</code> per side, 1000 replicates, p99 max-count threshold.</p>
+
+  <p><strong>Robustness.</strong> Threshold = 2.0 stable across bandwidths {Scott, Silverman, 0.1, 0.3, 0.5, 1.0}. Cross-validated with uniform-on-log-range null (P(null ≥ observed) ≈ 0).</p>
+
+  <h4 style="margin: 14px 0 8px 0;">All 13 prints of 0.00026058 ETH (in time order)</h4>
+  <table>
+    <thead><tr><th>Timestamp UTC</th><th>Side</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td class="code">2025-09-02 15:40:44</td><td>sell × 6</td><td class="num">0.039258</td></tr>
+      <tr><td class="code">2025-09-02 15:40:45</td><td>sell × 1</td><td class="num">0.039258</td></tr>
+      <tr><td class="code">2025-09-03 13:43:45</td><td>buy × 6</td><td class="num">0.039497</td></tr>
+    </tbody>
+  </table>
+  <div class="interp">Identical tick-rounded clip on both sides of the book within a 22-hour window is the canonical wash-trading fingerprint.</div>
+
+  <h4 style="margin: 14px 0 8px 0;">Doubling ladder (Monte Carlo verified)</h4>
+  <p>Among 18 flagged BUY sizes, 8 form 4 explicit 2× pairs: <code>62.64 ↔ 125.28 ↔ 250.56</code> (chain), <code>93.96 ↔ 187.92</code>, <code>137.808 ↔ 275.616</code>. Under MC null (random samples of 18 sizes from BUY distribution, 2000 reps), expected 2× pairs = 0.09 (max observed 2). <strong>P(null ≥ 4) = 0.0000.</strong></p>
+
+  <div class="figure"><img src="figures/d2_signatures.png" alt="D2 signatures"><div class="caption">D2 — recurrence-count distribution per side (left); flagged-size occurrence timeline (right)</div></div>
+</section>
+
+<section id="d3" class="detector">
+  <h2><span class="num">D3</span> Pump-and-Dump</h2>
+  <div class="hypothesis">Volume spike + ≥0.5% directional move + ≥50% reversal in 1h, bidirectional.</div>
+
+  <p><strong>Findings.</strong> <span class="pill muted">0 candidates</span> met all three criteria. Sensitivity test at <code>vol_z&gt;1.5, move&gt;0.3%, reversal&gt;30%</code> surfaces 2 sub-threshold dump-recovery events (09-01 04:00, 09-03 07:00), both below industry-standard cutoffs.</p>
+
+  <p>Price moves in a 5.7% band (0.0388 → 0.0410) over the 72h window. <strong>The market does not pump despite 99.9994% one-sided size pressure</strong> — corroborates D1's "buys don't move price" reading.</p>
+
+  <div class="figure"><img src="figures/d3_pumpdump.png" alt="D3 pump-dump"><div class="caption">D3 — price over time; no qualifying spike-and-reverse candidates</div></div>
+</section>
+
+<section id="d4" class="detector">
+  <h2><span class="num">D4</span> Liquidity Quality</h2>
+  <div class="hypothesis">Spread distribution + top-5 depth imbalance + trade-vs-spread cross-check via merge_asof.</div>
+
+  <p><strong>Tolerance audit.</strong> OB inter-snapshot intervals: median <strong>18.3 min</strong>, mean 22 min, max 2.4 hours. The brief's 5min tolerance matched only 22.5% of trades. Switched to 30 min (matches 87.8%, gives stable ~17% outside-spread rate consistent with longer tolerances).</p>
+
+  <h4 style="margin: 14px 0 8px 0;">Spread distribution (188 snapshots, bps)</h4>
+  <table>
+    <thead><tr><th>min</th><th>p25</th><th>median</th><th>p75</th><th>p95</th><th>max</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1.83</td><td class="num">54.50</td><td class="num"><strong>89.71</strong></td><td class="num">131.67</td><td class="num">141.17</td><td class="num">145.58</td></tr>
+    </tbody>
+  </table>
+  <p>The entire distribution sits 6-18× above the 5-15 bps baseline that liquid ETH/BTC venues quote. Either low-quality venue or systemic stale quoting.</p>
+
+  <h4 style="margin: 14px 0 8px 0;">Outside-spread breakdown</h4>
+  <p>127 of 845 trades (15.0%) printed at prices outside the contemporaneous best bid-ask, of which <strong>65 are sells and 62 are buys</strong>. Sells are <strong>14.8% of all trades but 51% of outside-spread prints</strong> (<strong>3.5× over-representation</strong>). The most extreme deviations cluster in two coordinated SELL bursts:</p>
+  <table>
+    <thead><tr><th>Timestamp UTC</th><th>n</th><th>Price</th><th>Dev from mid (bps)</th></tr></thead>
+    <tbody>
+      <tr><td class="code">2025-09-01 20:38:40</td><td class="num">4 sells</td><td class="num">0.039900</td><td class="num">−33.8</td></tr>
+      <tr><td class="code">2025-09-01 20:42:38–20:42:40</td><td class="num">7 sells</td><td class="num">0.039809</td><td class="num">−56.5</td></tr>
+    </tbody>
+  </table>
+  <p>Coordinated sub-bid sell prints in the same one to two seconds are consistent with hidden-iceberg fills, off-book reporting, or stale snapshot publication.</p>
+
+  <div class="figure"><img src="figures/d4_liquidity.png" alt="D4 liquidity"><div class="caption">D4 — spread histogram (top-left), spread time-series (top-right), depth imbalance (bottom-left), trade-vs-spread cross-check (bottom-right, orange = outside)</div></div>
+</section>
+
+<section id="d5" class="detector">
+  <h2><span class="num">D5</span> Burst Execution / Time-of-Day / Anchor Prices</h2>
+  <div class="hypothesis">Microstructure-level signatures expose operator behaviour: same-second bursts, hourly buy-share asymmetry, recurring exact prices.</div>
+
+  <h4 style="margin: 14px 0 8px 0;">5a. Burst seconds (≥5 trades in one second)</h4>
+  <table>
+    <thead><tr><th>Timestamp UTC</th><th>n</th><th>Side</th><th>Unique sizes</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="code">2025-09-01 16:16:46</td><td class="num"><strong>12</strong></td><td>sell</td><td class="num">12 (varied)</td><td>largest single burst</td></tr>
+      <tr><td class="code">2025-09-03 14:10:23</td><td class="num">7</td><td>buy</td><td class="num">7 (varied)</td><td></td></tr>
+      <tr><td class="code">2025-09-03 13:43:45</td><td class="num">7</td><td>buy</td><td class="num">2</td><td>0.00026058 cluster (D2)</td></tr>
+      <tr><td class="code">2025-09-02 15:25:45</td><td class="num">7</td><td>sell</td><td class="num">7 (varied)</td><td></td></tr>
+      <tr><td class="code">2025-09-02 15:40:44</td><td class="num">7</td><td>sell</td><td class="num">2</td><td>0.00026058 cluster (D2)</td></tr>
+      <tr><td class="code">2025-09-02 20:02:23</td><td class="num">6</td><td>sell</td><td class="num">6 (varied)</td><td></td></tr>
+      <tr><td class="code">2025-09-03 07:28:17</td><td class="num">6</td><td>sell</td><td class="num">6 (varied)</td><td></td></tr>
+      <tr><td class="code">2025-09-01 20:38:39</td><td class="num">5</td><td>sell</td><td class="num">5 (varied)</td><td>aligns with D4 sub-bid cluster</td></tr>
+      <tr><td class="code">2025-09-01 17:32:42</td><td class="num">5</td><td>sell</td><td class="num">5 (varied)</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h4 style="margin: 14px 0 8px 0;">5b. Time-of-day asymmetry</h4>
+  <p>Sells occur in <strong>only 15 of 24 UTC hours</strong>. Hours with zero sells: UTC 2, 3, 5, 6, 9, 10, 19, 22, 23. Activity concentrates in UTC 13–21 (US trading session ≈ 09:00–17:00 EST). Minimum buy-share is <strong>50.0% at hour 20</strong> (US market close). The seller(s) operate on a US schedule; buyer(s) operate continuously.</p>
+
+  <h4 style="margin: 14px 0 8px 0;">5c. Top anchor prices</h4>
+  <p>Top recurring price <code>0.039870</code> appears <strong>21 times</strong> (2.5% of all trades). Top 5 prices = 7.6%, top 20 = 20.4%. Concentration on specific tick-rounded levels without round-number bias suggests resting-limit-order anchoring.</p>
+
+  <div class="figure"><img src="figures/d5_bursts_tod_anchors.png" alt="D5 bursts/TOD/anchors"><div class="caption">D5 — burst seconds (top), hourly buy/sell counts with US-session highlight (middle), top 15 anchor prices (bottom)</div></div>
+</section>
+
+<section id="xr" class="detector">
+  <h2><span class="num">XR</span> Cross-detector triangulation</h2>
+  <p>Strict per-bin co-occurrence is sparse: only one hourly bin has both D1 and D2 firing — <strong>2025-09-02 14:00 UTC</strong>, which is 70 minutes before the SELL burst of seven 0.00026058 ETH prints at 15:40:44. Suggestive of "bot pauses, then runs the other side" but not load-bearing on a single bin.</p>
+  <p>The two strongest individual events stand on their own evidence: (1) 12-trade SELL burst at 09-01 16:16:46, and (2) the twin 0.00026058 ETH bursts at 09-02 15:40 / 09-03 13:43. Either alone is a near-impossible event under any IID null over 72h.</p>
+  <div class="figure"><img src="figures/co_occurrence_timeline.png" alt="Co-occurrence timeline"><div class="caption">Cross-detector flag timeline (1h grid) — red overlay = ≥2 detectors fire simultaneously</div></div>
+</section>
+
+<section id="repro" class="detector">
+  <h2><span class="num">Repro</span> Reproducibility</h2>
+  <pre>git clone &lt;fork-url&gt;
+cd &lt;fork&gt;/mkzung-ethbtc-analysis
+make all          # install + pytest + analyze + audit + open this dashboard
+
+# Or step-by-step
+pip install -r requirements.txt
+python -m pytest tests/ -v        # 34 unit tests
+python analyze.py --trades ../eth-btc-trades.csv \
+                  --orderbooks ../eth-btc-orderbooks.csv
+python audit.py
+python calibration.py             # detectors-on-clean-data calibration</pre>
+  <p>
+    <a href="REPORT.md">REPORT.md</a> · <a href="findings.json">findings.json</a> · <a href="audit.txt">audit.txt</a> · <a href="notebooks/01_analysis.ipynb">notebooks/01_analysis.ipynb</a>
+  </p>
+  <p>
+    Re-running on a fresh clone produces byte-identical <code>findings.json</code> (KDE null seeded at 42; doubling-ladder MC seeded). Verified.
+  </p>
+</section>
+
+</main>
+
+<footer>
+  <strong>Maksim Gorbuk</strong> · <a href="mailto:gorbuk.maxim@gmail.com">gorbuk.maxim@gmail.com</a> · <a href="https://github.com/mkzung">github.com/mkzung</a>
+  · Submitted to DN Institute Market Data Challenge, May 2026
+</footer>
+
+</body>
+</html>
