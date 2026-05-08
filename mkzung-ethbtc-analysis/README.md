@@ -1,6 +1,15 @@
 # ETH/BTC Suspicious Pattern Analysis
 
-> Submission to the [**DN Institute Market Data Challenge**](https://github.com/1712n/market-data-challenge).
+> 👋 **Hi — I'm Max Gorbuk**, applying for the Inca Digital R&D Data Engineering Intern role (Summer 2026). This folder is my submission to **DN Institute [Market Data Challenge — Issue #492](https://github.com/1712n/dn-institute/issues/492)**. Open pull request: **[1712n/market-data-challenge#24](https://github.com/1712n/market-data-challenge/pull/24)**.
+>
+> **Where to look first (≈ 5 min):**
+> 1. The TL;DR table below — five mutually-consistent signals.
+> 2. **[REPORT.md](./REPORT.md)** — full methodology, evidence, limitations (~8 min read).
+> 3. **[dashboard.html](./dashboard.html)** — interactive single-file dashboard (open in browser).
+> 4. **`make all`** from a fresh clone — pytest 34/34 + analyze + audit + dashboard.
+>
+> **Reach me:** [gorbuk.maxim@gmail.com](mailto:gorbuk.maxim@gmail.com) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
+>
 > Five-detector forensic framework over the ETH/BTC dataset (845 trades, 188 orderbook snapshots, 2025-09-01 → 2025-09-03 UTC).
 
 ![Python](https://img.shields.io/badge/python-3.10+-3776ab?logo=python&logoColor=white)
