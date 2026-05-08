@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+defaults:
+  run:
+    working-directory: mkzung-ethbtc-analysis
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -21,6 +25,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
+          cache-dependency-path: mkzung-ethbtc-analysis/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -30,40 +35,46 @@ jobs:
       - name: Run pytest
         run: python -m pytest tests/ -v
 
-      - name: Run analyze.py end-to-end
+      - name: Run analyze.py end-to-end (CSVs at fork root, ../)
         run: |
           python analyze.py \
-            --trades data/eth-btc-trades.csv \
-            --orderbooks data/eth-btc-orderbooks.csv \
+            --trades ../eth-btc-trades.csv \
+            --orderbooks ../eth-btc-orderbooks.csv \
             --out figures \
             --findings findings.json
 
       - name: Run audit.py
-        run: python audit.py
+        run: |
+          python audit.py \
+            --trades ../eth-btc-trades.csv \
+            --orderbooks ../eth-btc-orderbooks.csv
 
-      - name: Reproducibility — findings.json byte-identical
+      - name: Reproducibility — findings.json byte-identical on rerun
         run: |
           cp findings.json findings.json.first
           python analyze.py \
-            --trades data/eth-btc-trades.csv \
-            --orderbooks data/eth-btc-orderbooks.csv \
+            --trades ../eth-btc-trades.csv \
+            --orderbooks ../eth-btc-orderbooks.csv \
             --out figures \
             --findings findings.json
           diff -q findings.json findings.json.first
 
       - name: Calibration — detectors don't fire on synthetic clean data
-        run: python calibration.py
+        run: |
+          python calibration.py \
+            --challenge-trades ../eth-btc-trades.csv \
+            --challenge-orderbooks ../eth-btc-orderbooks.csv
 
       - name: Upload generated figures
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
           name: figures
-          path: figures/
+          path: mkzung-ethbtc-analysis/figures/
 
       - name: Upload findings.json
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
           name: findings
-          path: findings.json
+          path: mkzung-ethbtc-analysis/findings.json
