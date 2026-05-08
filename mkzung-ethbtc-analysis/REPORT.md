@@ -303,9 +303,13 @@ consecutive pairs:
 The longest frozen-bid run is **18 consecutive identical snapshots**
 (2025-09-02 20:05:15 UTC → 2025-09-03 02:11:51 UTC ≈ 6h 6m). An ask
 that is repriced ~9× more often than its paired bid is not consistent
-with two-sided market making: the bid is being parked while the ask is
-worked. This corroborates D4's persistent +0.72 median depth-imbalance
-toward the bid: not just heavier on average, but mechanically unmoving.
+with two-sided market making. Combined with D4's median **+0.72
+ask-heavy depth imbalance**, this paints a coherent one-sided picture:
+the ask side is the active, well-stocked side of the book — repriced
+constantly as it gets consumed — while the bid side is parked thin and
+seldom updated. This is exactly what a venue with an aggressive buyer
+(D1: 99.9994% of size on buy) hitting pre-arranged ask liquidity would
+look like; not what an organically two-sided market would.
 
 **6b. Benford's Law conformity.** First-digit distribution of trade
 sizes (n = 845) versus the expected `log10(1+1/d)` distribution:
