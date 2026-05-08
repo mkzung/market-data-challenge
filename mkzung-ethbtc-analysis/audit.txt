@@ -140,3 +140,11 @@ AUDIT 10 — D4 outside-spread tolerance audit
   tol=30min  matched=742/845 (87.8%)  outside=127
   tol=1h     matched=782/845 (92.5%)  outside=128
 
+======================================================================
+AUDIT 11 — D1 price-impact (Δmid before vs after, by side)
+======================================================================
+  buy  total=720  with-Δmid=579  median Δmid = +0.00 bps   median price-vs-mid = +20.22 bps
+  sell  total=125  with-Δmid=121  median Δmid = -17.82 bps   median price-vs-mid = -29.10 bps
+
+  Reading: aggressive buys do not move mid (Δmid ≈ 0), aggressive sells move mid −17.8 bps. Buys-without-impact ≡ wash signature.
+

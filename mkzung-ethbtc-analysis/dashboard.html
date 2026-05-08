@@ -135,7 +135,7 @@
 <main>
 
 <p class="lead">
-Five-detector forensic framework finds <strong>five mutually-consistent signals of automated, likely non-organic activity</strong>: extreme one-sided buy flow that does not move price, identical-clip burst signatures on both sides of the book, sub-second multi-trade clusters, an operator schedule asymmetric to US trading hours, and structural liquidity pathology (median spread 89.7 bps, 15% of trades printed outside the contemporaneous bid-ask). A sixth detector adds <strong>three peer-corroborated microstructure cross-checks</strong> (frozen-orderbook asymmetry 9.15×, Benford rejection at K-S=0.063, cron-style buy intervals with CV=0.69) that independently reject the null of organic two-sided market activity.
+Six-detector forensic framework — five primary detectors (D1–D5) plus a peer-corroborated cross-check layer (D6). Primary findings: <strong>five mutually-consistent signals of automated, likely non-organic activity</strong> — extreme one-sided buy flow that does not move price, identical-clip burst signatures on both sides of the book, sub-second multi-trade clusters, an operator schedule asymmetric to US trading hours, and structural liquidity pathology (median spread 89.7 bps, 15% of trades printed outside the contemporaneous bid-ask). D6 adds <strong>three independent microstructure cross-checks</strong> (frozen-orderbook asymmetry 9.15×, Benford rejection at K-S=0.063, cron-style buy intervals with CV=0.69), all of which independently reject the null of organic two-sided market activity.
 </p>
 
 <div class="toc">
@@ -241,8 +241,8 @@ Five-detector forensic framework finds <strong>five mutually-consistent signals 
   <table>
     <thead><tr><th>Side</th><th>n</th><th>median Δmid (bps)</th><th>median price vs mid (bps)</th></tr></thead>
     <tbody>
-      <tr><td>buy</td><td class="num">688</td><td class="num"><span class="pill bad">0.0</span></td><td class="num">+21.2 (above ask)</td></tr>
-      <tr><td>sell</td><td class="num">121</td><td class="num"><span class="pill warn">−17.8</span></td><td class="num">−29.1 (below bid)</td></tr>
+      <tr><td>buy</td><td class="num">579</td><td class="num"><span class="pill bad">0.0</span></td><td class="num">+20.2</td></tr>
+      <tr><td>sell</td><td class="num">121</td><td class="num"><span class="pill warn">−17.8</span></td><td class="num">−29.1</td></tr>
     </tbody>
   </table>
   <div class="interp">Aggressive buys that <strong>do not move price</strong> are inconsistent with genuine taker demand against a thin book — the canonical wash signature.</div>

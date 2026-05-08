@@ -9,9 +9,10 @@
 
 ## Executive summary
 
-Five detector framework over the 845-trade / 188-snapshot ETH/BTC dataset
-surfaces five mutually-consistent signals of automated, likely non-organic
-activity:
+Six-detector forensic framework over the 845-trade / 188-snapshot ETH/BTC
+dataset (D1–D5 primary signals plus D6 peer-corroborated microstructure
+cross-checks) surfaces a coherent picture of automated, likely non-organic
+activity. Five primary signals from D1–D5:
 
 1. **Asymmetric flow with no price impact** — 99.9994% of size is on the buy
    side over 72h (175,245:1 ratio), yet the median post-trade Δmid for buys
@@ -46,15 +47,19 @@ semantics) and are listed in §Limitations.
 
 ## Methodology
 
-Five detectors, each measuring a distinct signature, each with its parameters
-exposed and grounded in either the wash-trading literature or the dataset's
-own distribution:
+Six detectors total — five primary (D1–D5) plus a peer-corroborated cross-
+check layer (D6). Each detector measures a distinct signature with its
+parameters exposed and grounded either in the wash-trading literature or in
+the dataset's own distribution:
 
 - **D1** — Buy/sell imbalance with rolling z-score (count- and size-weighted)
 - **D2** — Recurring-size signatures, KDE-on-log(size) null, 1000 replicates
 - **D3** — Pump-and-dump (volume spike + bidirectional price reversal)
 - **D4** — Spread / depth-imbalance / trade-vs-spread cross-check
 - **D5** — Burst-second clusters / time-of-day asymmetry / anchor prices
+- **D6** — Microstructure cross-checks (frozen-orderbook asymmetry, Benford
+  conformity on trade sizes, inter-trade interval regularity), added after
+  reading peer submissions to the same challenge
 
 A 30-minute EDA pass produced two design-altering findings, captured in
 [`notebooks/00_eda.md`](./notebooks/00_eda.md):
@@ -67,7 +72,7 @@ A 30-minute EDA pass produced two design-altering findings, captured in
    separating the two distributions.
 
 Side-semantic forensics confirm `side` represents the **aggressor side**
-(BUY median price is +21 bps above contemporaneous mid; SELL is −29 bps below
+(BUY median price is +20 bps above contemporaneous mid; SELL is −29 bps below
 mid; SELL trades push mid down by −18 bps post-trade). Detectors that pool
 sizes (D2, D3 volume) split by side.
 
@@ -103,17 +108,21 @@ flags).
   size is on the buy side (**175,245:1** if same-unit; ≥24,500:1 even under
   alternative unit interpretations). PR #19 reported only the count ratio.
 
-- **Price-impact decomposition** (Δmid before vs after, by side):
+- **Price-impact decomposition** (Δmid before vs after, by side; values
+  reproducible from `audit.py` AUDIT 11):
 
-  | side | count | median Δmid (bps) | median price vs mid (bps) |
+  | side | count (with both sides matched) | median Δmid (bps) | median price vs mid (bps) |
   |---|---|---|---|
-  | buy  | 688 | **0.0** | +21.2 (above ask) |
-  | sell | 121 | **−17.8** | −29.1 (below bid) |
+  | buy  | 579 | **0.0** | +20.2 |
+  | sell | 121 | **−17.8** | −29.1 |
   
   Aggressive buys that **don't move price** are inconsistent with genuine
   taker demand against a thin book. Aggressive sells **do** move price.
   Reading: the buy flow matches against pre-arranged or self-provided
-  liquidity — the canonical wash signature.
+  liquidity — the canonical wash signature. (Side semantics confirmed
+  separately: median buy price is +20 bps above contemporaneous mid,
+  median sell price is −29 bps below — i.e. `side` represents the
+  aggressor; see `audit.py` AUDIT 7.)
 
 ![D1](./figures/d1_imbalance.png)
 
