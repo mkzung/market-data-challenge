@@ -1,16 +1,16 @@
 # ETH/BTC Suspicious Pattern Analysis
 
-> 👋 **Hi — I'm Max Gorbuk**, applying for the Inca Digital R&D Data Engineering Intern role (Summer 2026). This folder is my submission to **DN Institute [Market Data Challenge — Issue #492](https://github.com/1712n/dn-institute/issues/492)**. Open pull request: **[1712n/market-data-challenge#24](https://github.com/1712n/market-data-challenge/pull/24)**.
+> 👋 **Hi — I'm Max Gorbuk**, applying for the **Inca Digital R&D Data Engineering Intern** role (Summer 2026). This repo is my submission to **DN Institute [Market Data Challenge — Issue #492](https://github.com/1712n/dn-institute/issues/492)**. The submission also lives upstream as **[PR 1712n/market-data-challenge#24](https://github.com/1712n/market-data-challenge/pull/24)**; this standalone repo is the canonical, browseable mirror.
 >
 > **Where to look first (≈ 5 min):**
-> 1. The TL;DR table below — five primary signals + three peer-corroborated cross-checks.
-> 2. **[REPORT.md](./REPORT.md)** — full methodology, evidence, limitations (~8 min read).
-> 3. **[dashboard.html](./dashboard.html)** — interactive single-file dashboard (open in browser).
+> 1. 🚀 **[Live dashboard](https://mkzung.github.io/ethbtc-suspicious-patterns/dashboard.html)** — click to open in your browser (GitHub Pages, no clone needed).
+> 2. The TL;DR table below — five primary signals + three peer-corroborated cross-checks.
+> 3. **[REPORT.md](./REPORT.md)** — full methodology, evidence, limitations (~8 min read).
 > 4. **`make all`** from a fresh clone — pytest 46/46 + analyze + audit + dashboard.
 >
-> **Reach me:** [gorbuk.maxim@gmail.com](mailto:gorbuk.maxim@gmail.com) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
+> **Reach me:** [gorbuk@stanford.edu](mailto:gorbuk@stanford.edu) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
 >
-> Five-detector forensic framework over the ETH/BTC dataset (845 trades, 188 orderbook snapshots, 2025-09-01 → 2025-09-03 UTC).
+> Six-detector forensic framework over the ETH/BTC dataset (845 trades, 188 orderbook snapshots, 2025-09-01 → 2025-09-03 UTC).
 
 ![Python](https://img.shields.io/badge/python-3.10+-3776ab?logo=python&logoColor=white)
 ![pytest](https://img.shields.io/badge/pytest-46%2F46_pass-3fb950)
@@ -110,6 +110,6 @@ Patterns tested and **rejected** as non-findings (the framework doesn't cherry-p
 
 ## Author
 
-**Maksim Gorbuk** · [gorbuk.maxim@gmail.com](mailto:gorbuk.maxim@gmail.com) · [github.com/mkzung](https://github.com/mkzung)
+**Max Gorbuk** · [gorbuk@stanford.edu](mailto:gorbuk@stanford.edu) · [github.com/mkzung](https://github.com/mkzung)
 
 Researcher at the Stanford GSB Venture Capital Initiative under Prof. Ilya Strebulaev. Incoming MSc, INTENT — Bocconi University, Milan.

@@ -1,6 +1,6 @@
 # ETH/BTC Suspicious Pattern Analysis — DN Institute Challenge
 
-**Author:** Maksim Gorbuk · gorbuk.maxim@gmail.com · [github.com/mkzung](https://github.com/mkzung)
+**Author:** Max Gorbuk · gorbuk@stanford.edu · [github.com/mkzung](https://github.com/mkzung)
 **Submitted:** May 2026
 **Dataset:** `eth-btc-trades.csv` (845 trades) + `eth-btc-orderbooks.csv` (188 orderbook snapshots, 50 levels per side)
 **Time range:** 2025-09-01 00:02:57 UTC → 2025-09-03 23:51:34 UTC (71.81 hours)
