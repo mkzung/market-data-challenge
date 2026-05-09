@@ -26,7 +26,7 @@ activity. Five primary signals from D1–D5:
 3. **Burst-execution pattern** — at least **9 same-second clusters of ≥5
    trades** in 72h, including 12 sells in one second on 2025-09-01 16:16:46.
    Inter-arrival distribution is bimodal: 13.3% of consecutive trades are
-   ≤5s apart, 66% are >5min apart. Inconsistent with continuous Poisson flow.
+   ≤5s apart, 65.3% are >5min apart. Inconsistent with continuous Poisson flow.
 4. **Operator-schedule asymmetry** — sells occur in **only 15 of 24 UTC
    hours**; in 9 hours (UTC 2-3, 5-6, 9-10, 19, 22-23) there are zero sells.
    The seller(s) operate within a window covering the US trading session;
