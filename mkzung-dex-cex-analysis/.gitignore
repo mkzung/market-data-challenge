@@ -1,0 +1,16 @@
+# raw per-swap audit trail (large; regenerate with src/fetch_uniswap.py)
+data/raw/
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
+
+# run logs and rendered html (GitHub renders the executed .ipynb directly)
+*.log
+notebook/*.html
+.pytest_cache/
+_verify*.png
+verify.py

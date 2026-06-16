@@ -1,0 +1,4 @@
+block,tx_index,side,sender,exec_price,marginal_after,usdc_vol
+22963581,0,sell USDC,0xba6d84cc,0.998235,0.799644,6663270.04
+22963581,1,sell USDC,0xe592427a,0.799524,0.799564,141542.47
+22963581,2,buy USDC,0xba6d84cc,0.998414,0.999544,6548739.73
