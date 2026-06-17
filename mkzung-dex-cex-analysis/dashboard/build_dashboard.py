@@ -5,7 +5,7 @@ no external assets), and writes the dark-theme report to the repo root for GitHu
 """
 import os, sys, io, base64
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
-import pandas as pd, numpy as np
+import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -15,7 +15,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = lambda *p: os.path.join(ROOT, *p)
 
 table = pd.read_csv(D("results", "dex_cex_peg_deviation.csv"), parse_dates=["time"])
-ubh = pd.read_csv(D("data", "uniswap_hourly.csv"), parse_dates=["time"])
 bbh = pd.read_csv(D("data", "bybit_hourly.csv"), parse_dates=["time"])
 uob = pd.read_csv(D("data", "uniswap_outside_band_swaps.csv"))
 mev = pd.read_csv(D("data", "uniswap_mev_example.csv"))
@@ -89,17 +88,19 @@ for i, r in focus.iterrows():
 ax.axhspan(0.999, 1.001, color="green", alpha=0.08)
 ax.set_ylabel("pool marginal price (USDT/USDC)")
 ax.set_xlabel("swap sequence within block 22963581")
-ax.set_title("Within-block liquidity-void MEV: pool gaps to 0.80 and back in one block")
+ax.set_title("Within-block sandwich MEV: pool gaps to 0.80 and back in one block")
 fig4 = b64(f4)
 
 
-def table_html(df, cols, headers, fmts):
+def table_html(df, cols, headers, fmts, text_cols=()):
     h = "".join(f"<th>{x}</th>" for x in headers)
     rows = ""
     for _, r in df.iterrows():
-        tds = "".join(f'<td class="num">{fmts[c](r[c])}</td>' for c in cols)
+        tds = "".join(
+            f'<td class="{"txt" if c in text_cols else "num"}">{fmts[c](r[c])}</td>' for c in cols)
         rows += f"<tr>{tds}</tr>"
-    return f"<table><thead><tr>{h}</tr></thead><tbody>{rows}</tbody></table>"
+    return (f'<div style="overflow-x:auto"><table><thead><tr>{h}</tr></thead>'
+            f"<tbody>{rows}</tbody></table></div>")
 
 
 def t(x): return pd.to_datetime(x).strftime("%Y-%m-%d %H:00")
@@ -108,15 +109,18 @@ def v(x): return usd(x)
 
 both_tbl = table_html(both, ["time", "uniswap_volume", "bybit_volume", "uniswap_min_price", "bybit_min_price"],
                       ["hour (UTC)", "Uniswap vol", "Bybit vol", "Uni min px", "Bybit min px"],
-                      {"time": t, "uniswap_volume": v, "bybit_volume": v, "uniswap_min_price": p, "bybit_min_price": p})
+                      {"time": t, "uniswap_volume": v, "bybit_volume": v, "uniswap_min_price": p, "bybit_min_price": p},
+                      text_cols={"time"})
 byb_tbl = table_html(bbh, ["time", "bybit_volume", "bybit_min_price", "bybit_max_price"],
                      ["hour (UTC)", "outside-band vol", "min px", "max px"],
-                     {"time": t, "bybit_volume": v, "bybit_min_price": p, "bybit_max_price": p})
+                     {"time": t, "bybit_volume": v, "bybit_min_price": p, "bybit_max_price": p},
+                     text_cols={"time"})
 mev_tbl = table_html(focus,
                      ["tx_index", "side", "sender", "usdc_vol", "exec_price", "marginal_after"],
                      ["tx #", "side", "sender", "size", "executed px", "pool px after"],
                      {"tx_index": lambda x: str(int(x)), "side": str, "sender": str,
-                      "usdc_vol": v, "exec_price": p, "marginal_after": p})
+                      "usdc_vol": v, "exec_price": p, "marginal_after": p},
+                     text_cols={"side", "sender"})
 
 CSS = """
 :root{--bg:#0e1116;--panel:#161b22;--panel-2:#1c232c;--border:#2d333b;--text:#e6edf3;--muted:#8b949e;
@@ -145,6 +149,7 @@ table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px;}
 th,td{border-bottom:1px solid var(--border);text-align:left;padding:8px 12px;}
 th{color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.4px;}
 td.num{font-family:var(--mono);text-align:right;}
+td.txt{font-family:var(--mono);text-align:left;}
 tr:hover td{background:var(--panel-2);}
 .figure{background:white;border:1px solid var(--border);border-radius:8px;padding:8px;margin:12px 0;text-align:center;}
 .figure img{max-width:100%;height:auto;display:block;margin:0 auto;}
@@ -171,7 +176,7 @@ HTML = f"""<!doctype html>
 <p class="lead">How far did <strong>USDC</strong> trade from its 1.0000 USDT peg, hour by hour, on a decentralised
 (Uniswap v3 1bp pool) versus a centralised (Bybit spot) venue. Two very different pictures: the CEX order book
 left the band in a few genuine discount episodes, while the DEX pool holds the peg tightly and its rare wild
-prints are <strong>within-block MEV</strong>, not market peg moves.</p>
+prints are <strong>sandwich MEV</strong>, not market peg moves.</p>
 
 <div class="grid cols-3">
   <div class="stat accent"><div class="label">Uniswap outside-band volume</div><div class="value">{usd(uni_vol)}</div><div class="sub">{uni_hours} hours, mostly large swaps at 0.998-0.999</div></div>

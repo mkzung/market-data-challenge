@@ -3,10 +3,10 @@
 > 👋 **Hi, I'm Max Gorbuk**, applying for the **Inca Digital Investigations Analyst** role (Europe). This repo is a worked example of what the role does day-to-day: take raw market data from a decentralised and a centralised venue, measure how a stablecoin holds its peg hour by hour, and separate real market stress from AMM price impact and MEV. It is my submission to **DN Institute [Market Data Challenge, Issue #493](https://github.com/1712n/dn-institute/issues/493)** (upstream: **[PR 1712n/market-data-challenge#27](https://github.com/1712n/market-data-challenge/pull/27)**); this standalone repo is the canonical, browseable mirror.
 >
 > **Where to look first (≈ 5 min):**
-> 1. 🚀 **[Live dashboard](https://mkzung.github.io/dex-cex-market-analysis/)** — open in your browser, no clone needed (GitHub Pages).
-> 2. **[results/dex_cex_peg_deviation.csv](./results/dex_cex_peg_deviation.csv)** — the deliverable: one row per UTC hour.
-> 3. **[notebook/dex_cex_analysis.ipynb](./notebook/dex_cex_analysis.ipynb)** — calculations, data sources, the on-chain sandwich exhibit.
-> 4. **[memo/task1_hedged_lp.md](./memo/task1_hedged_lp.md)** — Task 1, the LP hedging memo.
+> 1. 🚀 **[Live dashboard](https://mkzung.github.io/dex-cex-market-analysis/)**, open in your browser, no clone needed (GitHub Pages).
+> 2. **[results/dex_cex_peg_deviation.csv](./results/dex_cex_peg_deviation.csv)**, the deliverable: one row per UTC hour.
+> 3. **[notebook/dex_cex_analysis.ipynb](./notebook/dex_cex_analysis.ipynb)**, calculations, data sources, the on-chain sandwich exhibit.
+> 4. **[memo/task1_hedged_lp.md](./memo/task1_hedged_lp.md)**, Task 1, the LP hedging memo.
 >
 > **Reach me:** [gorbuk@stanford.edu](mailto:gorbuk@stanford.edu) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
 >
@@ -89,6 +89,8 @@ dashboard/build_dashboard.py     regenerate index.html / dashboard.html from the
 tests/test_logic.py              decode / band / price / hour-bucket unit tests
 results/dex_cex_peg_deviation.csv  the deliverable
 index.html, dashboard.html       self-contained dashboard (embedded data + figures, GitHub Pages)
+.github/workflows/test.yml       CI: runs the unit tests on every push
+LICENSE                          MIT
 ```
 
 ## Run
