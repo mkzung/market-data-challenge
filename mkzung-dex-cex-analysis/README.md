@@ -8,7 +8,7 @@
 > 3. **[notebook/dex_cex_analysis.ipynb](./notebook/dex_cex_analysis.ipynb)**, calculations, data sources, the on-chain sandwich exhibit.
 > 4. **[memo/task1_hedged_lp.md](./memo/task1_hedged_lp.md)**, Task 1, the LP hedging memo.
 >
-> **Reach me:** [gorbuk@stanford.edu](mailto:gorbuk@stanford.edu) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
+> **Reach me:** [gorbuk.maxim@gmail.com](mailto:gorbuk.maxim@gmail.com) · +1 (208) 553-3054 · [linkedin.com/in/gorbuk](https://linkedin.com/in/gorbuk) · [github.com/mkzung](https://github.com/mkzung)
 >
 > 151,246 Uniswap swaps and 5.29M Bybit trades, 2025-07-01 to 2025-09-30 UTC.
 
@@ -27,7 +27,7 @@
 | **Bybit (CEX)** | 6 | ~$7.6M | genuine USDC discount, down to 0.99 on 2025-07-02 |
 | **Uniswap v3 1bp (DEX)** | 64 | ~$309M | about 99% within 1% of peg: large-swap AMM impact, not a peg move |
 
-The DEX's tail beyond 1% is **sandwich MEV, verified on-chain**: in block 22963581 one address (`0xba6d84cc`) sells $6.7M USDC to push the pool to ~0.80, a victim sells $142k through the Uniswap router and is filled at 0.7995, then the same address buys $6.5M back to ~1.00, across three consecutive transactions. Both venues deviated in the same hour only **3 times**.
+The DEX's tail beyond 1% is **sandwich MEV, verified on-chain**: in block 22963581 one address (`0xba6d84cc`) sells $6.7M USDC to push the pool to ~0.80, a victim sells $142k through the Uniswap router and is filled at 0.7995, then the same address buys $6.5M back to ~1.00, across three consecutive transactions ([frontrun](https://etherscan.io/tx/0xb09011d5ee2712caed69d63e067baf37b3c17bebc115c315ce9f7d45471e71d2), [victim](https://etherscan.io/tx/0x3a06e9c03d132c7706f8dd285af0e7d9a684769e87c5ed98b996510a9fa6e418), [backrun](https://etherscan.io/tx/0x49bb5a1b0750121bdae9ac5970d0aa7bc29292d912a22afaac61c96e967cba84)). Both venues deviated in the same hour only **3 times**.
 
 **Takeaway for an investigator:** raw "executed price outside the band" overstates DEX peg stress until you strip out AMM impact and MEV. The CEX trade tape is the cleaner peg gauge; the DEX needs trade size and within-block context applied first.
 

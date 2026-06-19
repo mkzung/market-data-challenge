@@ -116,11 +116,11 @@ byb_tbl = table_html(bbh, ["time", "bybit_volume", "bybit_min_price", "bybit_max
                      {"time": t, "bybit_volume": v, "bybit_min_price": p, "bybit_max_price": p},
                      text_cols={"time"})
 mev_tbl = table_html(focus,
-                     ["tx_index", "side", "sender", "usdc_vol", "exec_price", "marginal_after"],
-                     ["tx #", "side", "sender", "size", "executed px", "pool px after"],
+                     ["tx_index", "side", "sender", "usdc_vol", "exec_price", "marginal_after", "tx_hash"],
+                     ["tx #", "side", "sender", "size", "executed px", "pool px after", "tx hash"],
                      {"tx_index": lambda x: str(int(x)), "side": str, "sender": str,
-                      "usdc_vol": v, "exec_price": p, "marginal_after": p},
-                     text_cols={"side", "sender"})
+                      "usdc_vol": v, "exec_price": p, "marginal_after": p, "tx_hash": str},
+                     text_cols={"side", "sender", "tx_hash"})
 
 CSS = """
 :root{--bg:#0e1116;--panel:#161b22;--panel-2:#1c232c;--border:#2d333b;--text:#e6edf3;--muted:#8b949e;
@@ -212,7 +212,7 @@ prints are <strong>sandwich MEV</strong>, not market peg moves.</p>
 <div class="sub">A verified sandwich, one block. Address 0xba6d84cc sells $6.7M USDC (tx 0) to push the pool marginal
 price to ~0.80, a victim sells $142k through the Uniswap router (tx 1) and is filled at 0.7995, then the same
 0xba6d84cc buys $6.5M back (tx 2) to restore ~1.00. The big swaps' executed averages stay near 1.0 because the
-liquidity is at 1.0; the marginal price and the victim's fill are what reveal the dislocation.</div>
+liquidity is at 1.0; the marginal price and the victim's fill are what reveal the dislocation. On-chain transactions: tx 0 <a href="https://etherscan.io/tx/0xb09011d5ee2712caed69d63e067baf37b3c17bebc115c315ce9f7d45471e71d2">0xb09011d5</a>, tx 1 <a href="https://etherscan.io/tx/0x3a06e9c03d132c7706f8dd285af0e7d9a684769e87c5ed98b996510a9fa6e418">0x3a06e9c0</a>, tx 2 <a href="https://etherscan.io/tx/0x49bb5a1b0750121bdae9ac5970d0aa7bc29292d912a22afaac61c96e967cba84">0x49bb5a1b</a>. The same address runs a second sandwich in block 22984299 (<a href="https://etherscan.io/tx/0x1711b6d12f5b517fa96e36424a6dfce6ce1574fcc027626ee0199a8bbd8f8794">0x1711b6d1</a>, <a href="https://etherscan.io/tx/0xd94e5ac2d826d4983b095bde317cb64368096885d0a241af556f767a7f23f5bb">0xd94e5ac2</a>, <a href="https://etherscan.io/tx/0xabbcf100855f3b436130cd5ea7768550a1bb3a57b5be68733b13cbf3f02adfb2">0xabbcf100</a>).</div>
 <div class="figure"><img src="data:image/png;base64,{fig4}" alt="mev block reconstruction"></div>
 {mev_tbl}</section>
 
