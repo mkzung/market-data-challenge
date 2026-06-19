@@ -1,4 +1,4 @@
-"""Deep-audit script — verifies every claim in REPORT.md against the data.
+"""Deep-audit script, verifies every claim in REPORT.md against the data.
 
 Produces `audit.txt` with the raw evidence for each headline finding.
 Run after `analyze.py`. Reviewers can re-run this to verify reproducibility
@@ -50,7 +50,7 @@ def main():
     ob = load_orderbooks(args.orderbooks)
     buf = StringIO()
 
-    _hr(buf, "AUDIT 1 — burst timing of the 0.00026058 prints")
+    _hr(buf, "AUDIT 1, burst timing of the 0.00026058 prints")
     target = 0.00026058
     buys = t[(t["side"] == "buy")  & (t["size"].round(8) == target)]
     sels = t[(t["side"] == "sell") & (t["size"].round(8) == target)]
@@ -62,7 +62,7 @@ def main():
     buf.write(f"\nBUY  unique timestamps: {sorted(buys['timestamp'].unique())}\n")
     buf.write(f"SELL unique timestamps: {sorted(sels['timestamp'].unique())}\n")
 
-    _hr(buf, "AUDIT 2 — buy-side flagged sizes form a power-of-2 doubling ladder")
+    _hr(buf, "AUDIT 2, buy-side flagged sizes form a power-of-2 doubling ladder")
     d2 = detect_size_signatures(t)
     flagged = d2["buy"]["flagged"]
     buf.write(flagged.to_string(index=False) + "\n")
@@ -74,7 +74,7 @@ def main():
     buf.write("\n--- detected 2× relations ---\n")
     buf.write("\n".join(chains) + "\n")
 
-    _hr(buf, "AUDIT 3 — outside-spread trades: side imbalance and clusters")
+    _hr(buf, "AUDIT 3, outside-spread trades: side imbalance and clusters")
     d4 = detect_liquidity_quality(t, ob)
     out = d4["trades_outside"].copy()
     out["mid"] = (out["bid_price"] + out["ask_price"]) / 2
@@ -90,7 +90,7 @@ def main():
     buf.write(out[["timestamp", "side", "price", "bid_price", "ask_price", "dev_bps"]]
               .head(15).to_string(index=False) + "\n")
 
-    _hr(buf, "AUDIT 4 — D3 sensitivity: relaxed thresholds")
+    _hr(buf, "AUDIT 4, D3 sensitivity: relaxed thresholds")
     for vz, mv, rf in [(2.0, 0.005, 0.5), (1.5, 0.003, 0.3), (1.0, 0.001, 0.2)]:
         cand = detect_pumpdump(t, vol_z=vz, min_move=mv, reversal_frac=rf)
         buf.write(f"  vol_z>{vz}, |move|>{mv*100}%, rev>{rf*100}%: {len(cand)} candidates\n")
@@ -99,7 +99,7 @@ def main():
                       f"move={r['move_pct']*100:+.2f}%  rev={r['reversal_pct']*100:.0f}%  "
                       f"vol_z buy={r['vol_z_buy']:+.2f} sell={r['vol_z_sell']:+.2f}\n")
 
-    _hr(buf, "AUDIT 5 — global imbalance numbers (cross-check report)")
+    _hr(buf, "AUDIT 5, global imbalance numbers (cross-check report)")
     buf.write(f"buy count share: {(t['side']=='buy').mean()*100:.4f}%\n")
     buy_size = t[t['side']=='buy']['size'].sum()
     sell_size = t[t['side']=='sell']['size'].sum()
@@ -107,14 +107,14 @@ def main():
     buf.write(f"buy/sell count ratio: {(t.side=='buy').sum()/(t.side=='sell').sum():.3f}\n")
     buf.write(f"buy/sell SIZE ratio : {buy_size/sell_size:.3f}\n")
 
-    _hr(buf, "AUDIT 6 — size bimodality is NOT a CSV parse artifact")
+    _hr(buf, "AUDIT 6, size bimodality is NOT a CSV parse artifact")
     raw = pd.read_csv(args.trades, dtype=str)
     for side in ['BUY', 'SELL']:
         sub = raw[raw['side'] == side]['size'].astype(float)
         buf.write(f"  raw {side:4} n={len(sub)}  min={sub.min():.4e}  "
                   f"max={sub.max():.4e}  median={sub.median():.4e}\n")
 
-    _hr(buf, "AUDIT 7 — side semantics: aggressor or passive (price-impact)")
+    _hr(buf, "AUDIT 7, side semantics: aggressor or passive (price-impact)")
     obs = ob.sort_values("timestamp").reset_index(drop=True)
     merged = pd.merge_asof(
         t[["timestamp", "side", "price"]].sort_values("timestamp"),
@@ -133,7 +133,7 @@ def main():
     else:
         buf.write("\n→ ambiguous; cannot confidently classify side semantics\n")
 
-    _hr(buf, "AUDIT 8 — burst-second clusters (≥5 trades in one second)")
+    _hr(buf, "AUDIT 8, burst-second clusters (≥5 trades in one second)")
     df = t.copy(); df["sec"] = df["timestamp"].dt.floor("s")
     bursts = df.groupby("sec").size()
     bursts = bursts[bursts >= 5].sort_values(ascending=False)
@@ -144,7 +144,7 @@ def main():
         n_uniq = sub["size"].round(8).nunique()
         buf.write(f"  {sec}  n={n}  sides={side_dist}  unique_sizes={n_uniq}\n")
 
-    _hr(buf, "AUDIT 9 — time-of-day: hours with zero sells")
+    _hr(buf, "AUDIT 9, time-of-day: hours with zero sells")
     df["hour"] = df["timestamp"].dt.hour
     by_hour = df.groupby("hour")[["side"]].apply(
         lambda g: pd.Series({
@@ -158,7 +158,7 @@ def main():
     buf.write(f"min buy_share: {by_hour['buy_share_pct'].min():.1f}% at hour "
               f"{int(by_hour['buy_share_pct'].idxmin())}\n")
 
-    _hr(buf, "AUDIT 10 — D4 outside-spread tolerance audit")
+    _hr(buf, "AUDIT 10, D4 outside-spread tolerance audit")
     obs2 = ob[["timestamp", "bid_price", "ask_price"]].sort_values("timestamp")
     for tol in ("5min", "15min", "30min", "1h"):
         merged2 = pd.merge_asof(
@@ -173,7 +173,7 @@ def main():
         buf.write(f"  tol={tol:5s}  matched={len(valid)}/{len(t)} ({len(valid)/len(t)*100:.1f}%)  "
                   f"outside={len(outside)}\n")
 
-    _hr(buf, "AUDIT 11 — D1 price-impact (Δmid before vs after, by side)")
+    _hr(buf, "AUDIT 11, D1 price-impact (Δmid before vs after, by side)")
     # mid_before: nearest OB at-or-before trade, 30min tolerance
     # mid_after:  nearest OB strictly-after trade, 30min tolerance
     # delta_bps  = (mid_after - mid_before) / mid_before * 1e4
@@ -208,7 +208,7 @@ def main():
             f"median price-vs-mid = {p_med:+.2f} bps\n"
         )
     buf.write("\n  Reading: aggressive buys do not move mid (Δmid ≈ 0), aggressive sells "
-              "move mid −17.8 bps. Buys-without-impact ≡ wash signature.\n")
+              "move mid -17.8 bps. Buys-without-impact ≡ wash signature.\n")
 
     text = buf.getvalue()
     args.out.write_text(text)

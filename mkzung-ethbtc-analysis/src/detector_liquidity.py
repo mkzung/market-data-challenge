@@ -1,4 +1,4 @@
-"""D4 — Bid-Ask Spread + Depth-Imbalance + Trade-vs-Spread.
+"""D4, Bid-Ask Spread + Depth-Imbalance + Trade-vs-Spread.
 
 Hypothesis: healthy ETH/BTC venues quote tight spreads (5-15 bps) with
 roughly symmetric depth. Wide spreads, single-sided depth, or trades
@@ -8,7 +8,7 @@ sweeping.
 
 Adjustments vs. brief:
 1. Threshold uses the dataset's own distribution (median + 1.5×IQR), not
-   a hard-coded 50 bps. This venue's *median* is 90 bps — the brief's
+   a hard-coded 50 bps. This venue's *median* is 90 bps, the brief's
    threshold would flag virtually everything.
 2. Adds depth-imbalance metric: (ask_depth_5 - bid_depth_5) / (ask_depth_5 + bid_depth_5).
 3. Adds trade-vs-spread cross-check via merge_asof to flag executions

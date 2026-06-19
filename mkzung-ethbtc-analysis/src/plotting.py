@@ -1,7 +1,7 @@
 """All plotting code for the five detectors + co-occurrence timeline.
 
 Each function takes the detector output and a `Path` to write a PNG.
-Plots use matplotlib only (no seaborn dependency at runtime — keeps the
+Plots use matplotlib only (no seaborn dependency at runtime, keeps the
 toolkit small).
 """
 from __future__ import annotations
@@ -51,15 +51,15 @@ def plot_imbalance(d1: pd.DataFrame, out: Path) -> None:
     fig, axes = plt.subplots(2, 1, figsize=(11, 7), sharex=True)
 
     ax = axes[0]
-    ax.plot(d1.index, d1["log_count_ratio"], color=C_BUY, lw=1.0, label="log(buy/sell) — count")
-    ax.plot(d1.index, d1["log_size_ratio"],  color=C_SELL, lw=1.0, label="log(buy/sell) — size", alpha=0.7)
+    ax.plot(d1.index, d1["log_count_ratio"], color=C_BUY, lw=1.0, label="log(buy/sell), count")
+    ax.plot(d1.index, d1["log_size_ratio"],  color=C_SELL, lw=1.0, label="log(buy/sell), size", alpha=0.7)
     ax.axhline(0, color="black", lw=0.5)
     flagged = d1[d1["flag_any"].fillna(False)]
     if len(flagged):
         ax.scatter(flagged.index, flagged["log_count_ratio"],
                    color=C_FLAG, s=18, zorder=5, label="flagged window")
     ax.set_ylabel("log buy/sell ratio")
-    ax.set_title("D1 — Buy/Sell imbalance (30-min buckets, 8h rolling z-score, |z|>3)")
+    ax.set_title("D1, Buy/Sell imbalance (30-min buckets, 8h rolling z-score, |z|>3)")
     ax.legend(loc="upper right", framealpha=0.9)
 
     ax = axes[1]
@@ -97,7 +97,7 @@ def plot_signatures(trades: pd.DataFrame, d2: dict, out: Path) -> None:
         ax.set_yscale("log")
         ax.set_xlabel("recurrence count for a given size")
         ax.set_ylabel("# of distinct sizes (log)")
-        ax.set_title(f"D2 — {side.upper()} side recurrences (n={payload['n']})")
+        ax.set_title(f"D2, {side.upper()} side recurrences (n={payload['n']})")
         ax.legend(loc="upper right", framealpha=0.9)
 
         # Right: timeline of flagged sizes
@@ -118,7 +118,7 @@ def plot_signatures(trades: pd.DataFrame, d2: dict, out: Path) -> None:
                     transform=ax.transAxes)
         ax.set_xlabel("time (UTC)")
         ax.set_ylabel("size")
-        ax.set_title(f"D2 — {side.upper()} flagged-size occurrence timeline")
+        ax.set_title(f"D2, {side.upper()} flagged-size occurrence timeline")
         _format_time_axis(ax)
 
     fig.tight_layout()
@@ -131,7 +131,7 @@ def plot_pumpdump(trades: pd.DataFrame, d3: pd.DataFrame, out: Path) -> None:
     if d3.empty:
         fig, ax = plt.subplots(figsize=(11, 5))
         ax.plot(trades["timestamp"], trades["price"], color=C_BUY, lw=0.6)
-        ax.set_title("D3 — no pump/dump candidates met thresholds")
+        ax.set_title("D3, no pump/dump candidates met thresholds")
         ax.set_xlabel("time (UTC)")
         ax.set_ylabel("price (ETH/BTC)")
         _format_time_axis(ax)
@@ -150,7 +150,7 @@ def plot_pumpdump(trades: pd.DataFrame, d3: pd.DataFrame, out: Path) -> None:
                          f"({r['move_pct']*100:+.1f}%, rev {r['reversal_pct']*100:.0f}%)")
     ax.set_xlabel("time (UTC)")
     ax.set_ylabel("price (ETH/BTC)")
-    ax.set_title("D3 — Volume spikes (z>2σ) with price reversal ≥50% within 1h")
+    ax.set_title("D3, Volume spikes (z>2σ) with price reversal ≥50% within 1h")
     ax.legend(loc="upper right", fontsize=8, framealpha=0.9)
     _format_time_axis(ax)
     fig.tight_layout()
@@ -175,7 +175,7 @@ def plot_liquidity(d4: dict, out: Path) -> None:
     ax.axvline(15, color="green", ls=":", lw=1.2, label="healthy ETH/BTC ≤15 bps")
     ax.set_xlabel("spread (bps)")
     ax.set_ylabel("# of snapshots")
-    ax.set_title(f"D4 — spread distribution (median {summary['median_spread_bps']:.0f}bps, "
+    ax.set_title(f"D4, spread distribution (median {summary['median_spread_bps']:.0f}bps, "
                  f"max {summary['max_spread_bps']:.0f}bps)")
     ax.legend(loc="upper right", fontsize=8, framealpha=0.9)
 
@@ -194,7 +194,7 @@ def plot_liquidity(d4: dict, out: Path) -> None:
         ax.plot(ob["timestamp"], ob["depth_imbalance"], color=C_SELL, lw=0.7)
         ax.axhline(0, color="black", lw=0.5)
         ax.set_ylim(-1, 1)
-        ax.set_ylabel("depth imbalance (ask−bid)/(ask+bid)")
+        ax.set_ylabel("depth imbalance (ask-bid)/(ask+bid)")
         ax.set_xlabel("time (UTC)")
         ax.set_title("Top-5 depth imbalance (positive = ask-heavy)")
         _format_time_axis(ax)
@@ -282,7 +282,7 @@ def plot_cooccurrence_v2(
     ax.set_yticklabels(["D4 wide spread", "D3 pump/dump", "D2 size signature", "D1 imbalance"])
     ax.xaxis_date()
     _format_time_axis(ax)
-    ax.set_title("Cross-detector flag timeline — red = ≥2 detectors fire")
+    ax.set_title("Cross-detector flag timeline, red = ≥2 detectors fire")
     for i, c in enumerate(co):
         if c >= 2 and i < len(grid) - 1:
             ax.axvspan(mdates.date2num(grid[i]), mdates.date2num(grid[i+1]),
@@ -312,7 +312,7 @@ def plot_bursts_and_tod(bursts: pd.DataFrame, tod: pd.DataFrame, anchors: pd.Dat
     ax.axhline(5, color=C_FLAG, ls="--", lw=1, label="burst threshold (≥5/sec)")
     ax.set_ylabel("trades per second")
     ax.set_yscale("symlog", linthresh=1)
-    ax.set_title(f"D5a — burst seconds (n={len(bursts)} bursts of ≥5 trades in one second)")
+    ax.set_title(f"D5a, burst seconds (n={len(bursts)} bursts of ≥5 trades in one second)")
     ax.legend(loc="upper right", framealpha=0.9, fontsize=8)
     _format_time_axis(ax)
 
@@ -325,7 +325,7 @@ def plot_bursts_and_tod(bursts: pd.DataFrame, tod: pd.DataFrame, anchors: pd.Dat
     ax.set_xticks(x)
     ax.set_xlabel("hour (UTC)")
     ax.set_ylabel("# trades")
-    ax.set_title("D5b — trade count by UTC hour (sells concentrate in US session, buys 24/7)")
+    ax.set_title("D5b, trade count by UTC hour (sells concentrate in US session, buys 24/7)")
     ax.legend(loc="upper right", framealpha=0.9)
     # Highlight US session hours
     for h in range(13, 21):
@@ -339,7 +339,7 @@ def plot_bursts_and_tod(bursts: pd.DataFrame, tod: pd.DataFrame, anchors: pd.Dat
     ax.barh([f"{p:.6f}" for p in a["price"]], a["count"], color=C_BUY, alpha=0.85)
     ax.invert_yaxis()
     ax.set_xlabel("# trades at this exact price")
-    ax.set_title("D5c — top 15 anchor prices (limit-order resting clusters)")
+    ax.set_title("D5c, top 15 anchor prices (limit-order resting clusters)")
     for i, (_, r) in enumerate(a.iterrows()):
         ax.text(r["count"] + 0.2, i, f"  {r['count']} ({r['share_pct']:.1f}%)",
                 va="center", fontsize=8, color="#444")

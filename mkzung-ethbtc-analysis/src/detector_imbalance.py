@@ -1,18 +1,18 @@
-"""D1 — Buy/Sell Imbalance with Rolling Z-Score (count- AND size-weighted).
+"""D1, Buy/Sell Imbalance with Rolling Z-Score (count- AND size-weighted).
 
 Hypothesis: healthy markets have buy/sell ratios oscillating around 1.0.
-Sustained deviations beyond 3σ — both in trade *count* and trade *size* —
+Sustained deviations beyond 3σ, both in trade *count* and trade *size* -
 indicate one-sided pressure consistent with wash trading, momentum ignition,
 or a single dominant taker.
 
 Adjustments vs. brief:
-1. 8h rolling window (not 24h) — sample spans only 72h.
+1. 8h rolling window (not 24h), sample spans only 72h.
 2. 30-min buckets (mean ~6 trades/bucket); buckets with fewer than
    `min_trades_per_bucket` trades are dropped to keep the rolling baseline
    stable.
 3. The size log-ratio uses a `+1` smoothing constant rather than a small
    epsilon: 119 of 143 valid buckets contain zero sells in this dataset, and
-   any small-eps formulation is dominated by `log(buy_size / eps)` — pure
+   any small-eps formulation is dominated by `log(buy_size / eps)`, pure
    smoothing artifact. The far stronger size-side finding is the GLOBAL
    imbalance (~175,245:1) reported in `summarize_d1`.
 """
@@ -69,7 +69,7 @@ def detect_buysell_imbalance(
     # Count-ratio: smoothed by +1 for log stability.
     g["log_count_ratio"] = np.log((g["buy_count"] + 1) / (g["sell_count"] + 1))
     # Size-ratio: 119/143 buckets have zero sells in this dataset, so any
-    # epsilon-based log((buy+eps)/(sell+eps)) is dominated by log(buy/eps) — a
+    # epsilon-based log((buy+eps)/(sell+eps)) is dominated by log(buy/eps), a
     # pure smoothing artifact, not signal. We use eps=1 (≈ neutral baseline of
     # 1 ETH) which makes the log stable but means the "size z-score" is
     # numerically constrained and rarely fires. The far stronger size-side

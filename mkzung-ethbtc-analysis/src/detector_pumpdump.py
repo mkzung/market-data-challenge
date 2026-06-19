@@ -1,6 +1,6 @@
-"""D3 — Pump-and-Dump Signature (volume spike → price reversal, bidirectional).
+"""D3, Pump-and-Dump Signature (volume spike → price reversal, bidirectional).
 
-Hypothesis: P&D events have a distinctive shape — anomalous volume spike
+Hypothesis: P&D events have a distinctive shape, anomalous volume spike
 coincident with a sharp price move, followed by a >50% reversal within
 a short forward window. Most P&Ds are upward (pumps), but mirrored
 patterns (dumps with sharp recoveries) are also flagged by this detector.
@@ -49,8 +49,8 @@ def detect_pumpdump(
         p_start      : price at spike-window start
         p_extreme    : peak or trough in forward window (whichever further)
         p_end        : price at end of forward window
-        move_pct     : (p_extreme − p_start) / p_start (signed)
-        reversal_pct : (p_extreme − p_end) / (p_extreme − p_start)
+        move_pct     : (p_extreme - p_start) / p_start (signed)
+        reversal_pct : (p_extreme - p_end) / (p_extreme - p_start)
         direction    : 'pump' if move > 0 else 'dump'
         score        : (|z_buy| + |z_sell|) × |move_pct| × reversal_pct
     """

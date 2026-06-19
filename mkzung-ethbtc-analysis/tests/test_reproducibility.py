@@ -1,4 +1,4 @@
-"""End-to-end reproducibility test — analyze.py must produce identical findings."""
+"""End-to-end reproducibility test, analyze.py must produce identical findings."""
 from __future__ import annotations
 
 import json
@@ -25,7 +25,7 @@ DATA = TRADES_CSV.parent  # back-compat alias for legacy test code
 @pytest.mark.skipif(not TRADES_CSV.exists(),
                     reason="challenge data not present")
 def test_analyze_produces_consistent_findings(tmp_path):
-    """Run analyze.py twice — findings.json must be byte-identical."""
+    """Run analyze.py twice, findings.json must be byte-identical."""
     f1 = tmp_path / "findings1.json"
     f2 = tmp_path / "findings2.json"
     figs = tmp_path / "figures"

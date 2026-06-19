@@ -10,7 +10,7 @@ Schema (observed in 1712n/market-data-challenge):
         asks  -> Python-literal: list of {'price': float, 'size': float}, length up to 50
         bids  -> same shape
 
-The orderbooks file does NOT have flat `bid_price`/`ask_price` columns — it stores
+The orderbooks file does NOT have flat `bid_price`/`ask_price` columns, it stores
 full book depth as a stringified Python list-of-dicts. We parse it with
 `ast.literal_eval` (safer than eval) and emit two views:
 
@@ -110,7 +110,7 @@ def load_orderbooks(path: str | Path) -> pd.DataFrame:
 
     # Top-of-book: best ask = lowest ask price; best bid = highest bid price.
     # The data appears already sorted (asks ascending, bids descending), but we
-    # don't trust the source — sort explicitly.
+    # don't trust the source, sort explicitly.
     def _best_ask(levels):
         if not levels:
             return (np.nan, np.nan)
@@ -145,7 +145,7 @@ def load_orderbooks(path: str | Path) -> pd.DataFrame:
     })
     out = out.dropna(subset=["timestamp", "bid_price", "ask_price"])
     out = out[(out["bid_price"] > 0) & (out["ask_price"] > 0)]
-    # Drop crossed/locked books — they're data artifacts.
+    # Drop crossed/locked books, they're data artifacts.
     out = out[out["ask_price"] >= out["bid_price"]]
     out["mid"] = (out["bid_price"] + out["ask_price"]) / 2
     out["spread_bps"] = (out["ask_price"] - out["bid_price"]) / out["mid"] * 1e4

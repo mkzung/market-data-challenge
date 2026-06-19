@@ -1,4 +1,4 @@
-"""D5 — Burst-execution detector + time-of-day + anchor-price.
+"""D5, Burst-execution detector + time-of-day + anchor-price.
 
 Three closely-related microstructure signatures that all pointed at the same
 operator behavior:
@@ -53,7 +53,11 @@ def detect_bursts(trades: pd.DataFrame, min_trades_per_second: int = 5) -> pd.Da
         })
     out = pd.DataFrame(rows)
     if not out.empty:
-        out = out.sort_values("n_trades", ascending=False).reset_index(drop=True)
+        # Secondary key = timestamp: ties on n_trades otherwise inherit
+        # groupby/value_counts insertion order, which varies across pandas
+        # versions and breaks cross-platform byte-identical findings.json.
+        out = (out.sort_values(["n_trades", "second"], ascending=[False, True])
+                  .reset_index(drop=True))
     return out
 
 
@@ -83,8 +87,14 @@ def detect_anchor_prices(trades: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
     """Top N most-traded exact prices."""
     if trades.empty:
         return pd.DataFrame(columns=["price", "count", "share_pct"])
-    counts = trades["price"].value_counts().head(top_n).reset_index()
+    # Explicit (count DESC, price ASC) total order BEFORE the head() cut:
+    # with bare value_counts().head(n), both the ordering AND the membership
+    # of tied counts at the boundary depend on the pandas version -
+    # non-deterministic across environments.
+    counts = trades["price"].value_counts().reset_index()
     counts.columns = ["price", "count"]
+    counts = (counts.sort_values(["count", "price"], ascending=[False, True])
+                    .head(top_n).reset_index(drop=True))
     counts["share_pct"] = counts["count"] / len(trades) * 100
     return counts
 

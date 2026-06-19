@@ -14,7 +14,7 @@ from src.detector_microstructure import (
 
 
 # ---------------------------------------------------------------------------
-# D6a — frozen orderbook
+# D6a, frozen orderbook
 # ---------------------------------------------------------------------------
 
 def _ob_row(ts, bids, asks):
@@ -83,7 +83,7 @@ def test_frozen_longest_run_correct_endpoints():
 
 
 # ---------------------------------------------------------------------------
-# D6b — Benford
+# D6b, Benford
 # ---------------------------------------------------------------------------
 
 def test_benford_uniform_digits_rejects_null():
@@ -116,7 +116,7 @@ def test_benford_empty_input():
 
 
 # ---------------------------------------------------------------------------
-# D6c — interval regularity
+# D6c, interval regularity
 # ---------------------------------------------------------------------------
 
 def test_interval_constant_spacing_zero_cv():

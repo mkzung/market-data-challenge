@@ -1,4 +1,4 @@
-"""ETH/BTC suspicious-pattern analysis — DN Institute Challenge #492.
+"""ETH/BTC suspicious-pattern analysis, DN Institute Challenge #492.
 
 Single-command runner for the five-detector framework (D1 imbalance,
 D2 size signatures, D3 pump-and-dump, D4 liquidity, D5 bursts/TOD/anchors).
@@ -13,12 +13,13 @@ Usage
         --out figures
 
 When run inside a fork of the upstream challenge repo, the CSVs live at
-the fork root (one level up) — pass --trades ../eth-btc-trades.csv etc.
+the fork root (one level up), pass --trades ../eth-btc-trades.csv etc.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -58,6 +59,30 @@ def _to_jsonable(o):
         return o.tolist()
     raise TypeError(f"Unserializable type: {type(o)}")
 
+
+def _round_floats(o, ndigits: int = 10):
+    """Recursively round all floats to `ndigits` decimal places.
+
+    Full-precision float serialization leaks platform noise: the last 1-2
+    bits of accumulated pandas/numpy arithmetic differ across BLAS builds
+    and architectures (x86 vs ARM), so a findings.json committed on one
+    machine fails a byte-diff against one generated on another. 10 dp is
+    ~4 orders of magnitude below any digit we interpret, and makes the
+    byte-identical reproducibility claim hold cross-platform.
+    """
+    if isinstance(o, bool):          # bool is an int subclass, keep as-is
+        return o
+    if isinstance(o, (float, np.floating)):
+        return None if (isinstance(o, float) and math.isnan(o)) or \
+                       (isinstance(o, np.floating) and np.isnan(o)) \
+               else round(float(o), ndigits)
+    if isinstance(o, dict):
+        return {k: _round_floats(v, ndigits) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_round_floats(v, ndigits) for v in o]
+    if isinstance(o, np.ndarray):
+        return [_round_floats(v, ndigits) for v in o.tolist()]
+    return o
 
 
 def _smart_default(name: str) -> Path:
@@ -109,18 +134,18 @@ def main() -> None:
     print(f"[load] median spread: {meta['median_spread_bps']} bps  (max {meta['max_spread_bps']} bps)")
 
     # --- Detector 1 -------------------------------------------------------
-    print("\n[D1] buy/sell imbalance — 30min buckets, 8h rolling z, |z|>3 …")
+    print("\n[D1] buy/sell imbalance, 30min buckets, 8h rolling z, |z|>3 …")
     d1 = detect_buysell_imbalance(trades)
     d1_sum = summarize_d1(d1)
     print(f"     buckets={d1_sum['n_buckets']}  flagged_any={d1_sum['n_flagged_any']}  "
           f"event_clusters={d1_sum['n_event_clusters']}  "
           f"max|z| count={d1_sum['max_z_count']:.2f}  size={d1_sum['max_z_size']:.2f}")
-    print(f"     global buy share — count {d1_sum['global_buy_count_share']*100:.1f}%, "
+    print(f"     global buy share, count {d1_sum['global_buy_count_share']*100:.1f}%, "
           f"size {d1_sum['global_buy_size_share']*100:.4f}%")
     plot_imbalance(d1, args.out / "d1_imbalance.png")
 
     # --- Detector 2 -------------------------------------------------------
-    print("\n[D2] recurring trade-size signatures — KDE-on-log(size) null, 1000 reps, p99 …")
+    print("\n[D2] recurring trade-size signatures, KDE-on-log(size) null, 1000 reps, p99 …")
     d2 = detect_size_signatures(trades, n_replicates=1000, percentile=99.0)
     d2_sum = summarize_d2(d2)
     for side, s in d2_sum.items():
@@ -128,7 +153,7 @@ def main() -> None:
         thr_is_nan = isinstance(thr, float) and np.isnan(thr)
         thr_str = f"{thr:.2f}" if thr is not None and not thr_is_nan else "n/a"
         top_size = s.get("top_size")
-        top_size_str = f"{top_size}" if top_size is not None else "—"
+        top_size_str = f"{top_size}" if top_size is not None else "-"
         print(f"     [{side:>4}] n={s['n_trades']}  null_thresh={thr_str}  "
               f"flagged_sizes={s['n_flagged_sizes']}  "
               f"top_size={top_size_str} ×{s['top_count']} "
@@ -136,7 +161,7 @@ def main() -> None:
     plot_signatures(trades, d2, args.out / "d2_signatures.png")
 
     # --- Detector 3 -------------------------------------------------------
-    print("\n[D3] pump/dump — 1h vol z>2σ + ≥0.5% move + ≥50% reversal in 1h, bidirectional …")
+    print("\n[D3] pump/dump, 1h vol z>2σ + ≥0.5% move + ≥50% reversal in 1h, bidirectional …")
     d3 = detect_pumpdump(trades)
     d3_sum = summarize_d3(d3)
     print(f"     candidates={d3_sum['n_candidates']}  "
@@ -147,7 +172,7 @@ def main() -> None:
     plot_pumpdump(trades, d3, args.out / "d3_pumpdump.png")
 
     # --- Detector 4 -------------------------------------------------------
-    print("\n[D4] spread + depth + trade-vs-spread — dataset-relative threshold …")
+    print("\n[D4] spread + depth + trade-vs-spread, dataset-relative threshold …")
     d4 = detect_liquidity_quality(trades, ob)
     s4 = d4["summary"]
     print(f"     spread (bps): median {s4['median_spread_bps']:.2f}  "
@@ -157,7 +182,7 @@ def main() -> None:
     print(f"     trades outside contemporaneous spread: {s4['n_trades_outside_spread']} "
           f"({s4['pct_trades_outside_spread']:.2f}%)")
     if s4.get("median_depth_imbalance") is not None:
-        print(f"     depth imbalance — median {s4['median_depth_imbalance']:+.3f}, "
+        print(f"     depth imbalance, median {s4['median_depth_imbalance']:+.3f}, "
               f"p95 {s4['p95_depth_imbalance']:+.3f}")
     plot_liquidity(d4, args.out / "d4_liquidity.png")
 
@@ -194,7 +219,7 @@ def main() -> None:
     print(f"     Benford K-S {bf['ks_stat']} vs crit {bf['ks_critical_05']} "
           f"(n={bf['n']}) → {'REJECT' if bf['reject_null'] else 'do not reject'}")
     print(f"     buy intervals (Sep-3 14:00+ UTC): n={iv['n_trades']}  "
-          f"median={iv['median_seconds']}s  IQR={iv['iqr_low_seconds']}–{iv['iqr_high_seconds']}s  "
+          f"median={iv['median_seconds']}s  IQR={iv['iqr_low_seconds']}-{iv['iqr_high_seconds']}s  "
           f"CV={iv['cv']}")
 
     # --- Co-occurrence ----------------------------------------------------
@@ -214,7 +239,7 @@ def main() -> None:
         "d6": d6_sum,
     }
     with open(args.findings, "w") as f:
-        json.dump(findings, f, indent=2, default=_to_jsonable)
+        json.dump(_round_floats(findings), f, indent=2, default=_to_jsonable)
     print(f"\n[done] figures → {args.out}/  ·  findings → {args.findings}")
 
 

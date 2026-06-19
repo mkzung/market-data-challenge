@@ -129,7 +129,7 @@ def test_d3_detects_constructed_pump():
     verify D3 fires on it. Uses 48h baseline + 1h pump so the trailing window
     has enough baseline points for the spike's z-score to exceed threshold
     (at small N the rolling window mean+std both grow with the spike so z is
-    bounded — we use trailing='24h' = 24 buckets to dilute the spike's effect
+    bounded, we use trailing='24h' = 24 buckets to dilute the spike's effect
     on its own baseline).
     """
     start = pd.Timestamp("2025-09-01 00:00:00", tz="UTC")
@@ -141,7 +141,7 @@ def test_d3_detects_constructed_pump():
             t = start + pd.Timedelta(hours=h, minutes=int(rng.uniform(0, 60)))
             rows.append({"timestamp": t, "price": 0.04, "size": 0.01, "side": "buy"})
 
-    # Hour 48: explicit pump — many large trades pushing price up 3%
+    # Hour 48: explicit pump, many large trades pushing price up 3%
     pump_t0 = start + pd.Timedelta(hours=48)
     for k in range(15):
         rows.append({

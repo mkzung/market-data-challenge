@@ -1,22 +1,22 @@
-"""Detector 6 — microstructure cross-checks (peer-corroborated).
+"""Detector 6, microstructure cross-checks (peer-corroborated).
 
-After completing the D1–D5 framework, peer review of prior submissions to
+After completing the D1-D5 framework, peer review of prior submissions to
 1712n/market-data-challenge surfaced three additional forensic angles that
 we had not explicitly tested. We re-derive each on the same dataset and
 integrate them as D6 sub-detectors.
 
-D6a — Frozen orderbook
+D6a, Frozen orderbook
     Count byte-identical consecutive snapshots per side. An asymmetry
     between bid-side and ask-side freeze rates is consistent with stale
     quotes / spoofing on one side, not active two-sided market making.
 
-D6b — Benford's Law conformity
+D6b, Benford's Law conformity
     K-S test of the first-digit distribution of trade sizes against
     Benford's expected log10(1 + 1/d) distribution. Synthetic-data
     forensics indicator: organic size distributions tend to conform
     loosely; programmatically generated sizes often do not.
 
-D6c — Inter-trade interval regularity (windowed)
+D6c, Inter-trade interval regularity (windowed)
     Median / IQR / coefficient-of-variation of inter-trade gaps for a
     given side over a chosen time window. Tight IQR around a fixed period
     is consistent with cron-style algorithmic scheduling.
@@ -31,7 +31,7 @@ import pandas as pd
 
 
 # ---------------------------------------------------------------------------
-# D6a — frozen orderbook
+# D6a, frozen orderbook
 # ---------------------------------------------------------------------------
 
 def detect_frozen_orderbook(orderbooks_raw: pd.DataFrame) -> dict:
@@ -41,7 +41,7 @@ def detect_frozen_orderbook(orderbooks_raw: pd.DataFrame) -> dict:
     ----------
     orderbooks_raw : DataFrame
         The RAW orderbooks CSV (string columns 'bids', 'asks'), NOT the
-        parsed top-of-book DataFrame. Byte-equality is the relevant signal —
+        parsed top-of-book DataFrame. Byte-equality is the relevant signal -
         we explicitly want to detect that the venue re-emitted the same
         serialized snapshot, not just that top-of-book happened to round
         to the same number.
@@ -145,7 +145,7 @@ def detect_frozen_orderbook(orderbooks_raw: pd.DataFrame) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# D6b — Benford's Law (first-digit K-S test)
+# D6b, Benford's Law (first-digit K-S test)
 # ---------------------------------------------------------------------------
 
 def _first_digit(x: float) -> Optional[int]:
@@ -203,7 +203,7 @@ def detect_benford(trades: pd.DataFrame, col: str = "size") -> dict:
 
 
 # ---------------------------------------------------------------------------
-# D6c — inter-trade interval regularity (windowed, side-filtered)
+# D6c, inter-trade interval regularity (windowed, side-filtered)
 # ---------------------------------------------------------------------------
 
 def detect_interval_regularity(

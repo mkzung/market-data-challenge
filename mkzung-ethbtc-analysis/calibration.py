@@ -1,4 +1,4 @@
-"""Calibration study — verify detectors don't fire on synthetic clean data.
+"""Calibration study, verify detectors don't fire on synthetic clean data.
 
 A forensic test of the framework: generate ETH/BTC-like synthetic data with
 properties consistent with a healthy, organic market (Poisson trade arrivals,
@@ -6,7 +6,7 @@ log-normal sizes, balanced sides, tight bid-ask spreads with stationary
 mid-price). Run all five detectors. None should fire.
 
 If detectors do fire on clean data, our challenge-data findings are noise.
-If they don't fire on clean data but DO fire on challenge data — the
+If they don't fire on clean data but DO fire on challenge data, the
 contrast itself is the strongest evidence we have.
 
 Usage
@@ -62,7 +62,7 @@ def generate_clean_market(
     n_levels: int = 50,
     seed: int = 42,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Realistic clean ETH/BTC market — trades + OB on a SHARED mid-price path.
+    """Realistic clean ETH/BTC market, trades + OB on a SHARED mid-price path.
 
     The shared price path ensures trades print inside the contemporaneous
     spread (no artifactual outside-spread flags from drift mismatch).
@@ -105,7 +105,7 @@ def generate_clean_market(
         else:
             ob_mid[oi]    = mid_path[k]; oi += 1
 
-    # Build trades — execution price = mid ± (spread/2) depending on side
+    # Build trades, execution price = mid ± (spread/2) depending on side
     sides = rng.choice(["buy", "sell"], size=len(trade_sec), p=[p_buy, 1 - p_buy])
     sizes = np.exp(rng.normal(size_log_mu, size_log_sd, size=len(trade_sec)))
     spread_at_trade = np.maximum(1.0, rng.normal(spread_bps_mean, spread_bps_sd, size=len(trade_sec)))
@@ -195,7 +195,7 @@ def main():
     args = p.parse_args()
 
     print("="*78)
-    print("CALIBRATION STUDY — detectors on synthetic clean data vs. challenge data")
+    print("CALIBRATION STUDY, detectors on synthetic clean data vs. challenge data")
     print("="*78)
     print()
     print("Generating synthetic clean ETH/BTC market with seed", args.seed)
@@ -206,7 +206,7 @@ def main():
     print(f"  - {args.n_snapshots} OB snapshots, ~10 bps spreads (healthy ETH/BTC)")
     print()
 
-    # Generate clean synthetic market — trades + OB on a SHARED mid-price path
+    # Generate clean synthetic market, trades + OB on a SHARED mid-price path
     # so trades land inside the contemporaneous spread (no drift artifacts).
     clean_trades_raw, clean_ob_raw = generate_clean_market(
         n_trades=args.n_trades, n_snapshots=args.n_snapshots, seed=args.seed
@@ -277,7 +277,7 @@ def main():
     print("="*78)
     print()
 
-    # Verdict — based on D1, D2, D3, D5 (D4 outside-spread % is sensitive to
+    # Verdict, based on D1, D2, D3, D5 (D4 outside-spread % is sensitive to
     # drift between snapshots and is NOT a primary calibration metric; the
     # forensic D4 signal is *clustered* outside-spread events, not the rate).
     print("VERDICT")
@@ -333,7 +333,7 @@ def main():
     print("  Note on D4: outside-spread % depends on price drift between OB")
     print("  snapshots and is naturally higher on tight-spread markets (less")
     print("  buffer for drift). The forensic D4 signal is the *clustered* sub-")
-    print("  bid sell prints in single seconds (e.g. 09-01 20:42:38–40), not")
+    print("  bid sell prints in single seconds (e.g. 09-01 20:42:38-40), not")
     print("  the global percentage.")
     print()
     return 0 if (not suspicious_clean and suspicious_challenge) else 1
